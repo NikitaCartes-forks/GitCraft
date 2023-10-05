@@ -39,8 +39,8 @@ public class GitCraftConfig {
 
 	/// Other Settings
 	public String gitUser = "Mojang";
-	public String gitMail = "gitcraft@decompiled.mc";
-	public String gitMainlineLinearBranch = "master";
+	public String gitMail = "dev@mojang.com";
+	public String gitMainlineLinearBranch = "snapshot";
 
 	/// Experimental Settings
 	public boolean useHardlinks = true;
@@ -96,7 +96,10 @@ public class GitCraftConfig {
 	public static List<String> parchmentMissingVersions = List.of("1.18", "1.19", "1.19.1", "1.20", "1.20.2", "1.20.3");
 
 	// Version Override
-	public static Map<String, String> minecraftVersionSemVerOverride = Map.of();
+	public static Map<String, String> minecraftVersionSemVerOverride = Map.of(
+		"23w13a_or_b", "1.20-alpha.23.13.ab.replaced",
+		"23w13a_or_b_original", "1.20-alpha.23.13.ab.original"
+	);
 
 	public static GitCraftConfig defaultConfig() {
 		return new GitCraftConfig();

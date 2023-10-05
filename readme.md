@@ -1,3 +1,14 @@
+# Fork of GitCraft
+This is a fork of [GitCraft](https://github.com/NikitaCartes-forks/GitCraft)
+
+Changes from original:
+- Add jsons for all extra versions (combat snapshots, experimental snapshots and 23w19a_or_b_original)
+- Change commit message
+- Change commit author
+- Add tag for each version
+- Add extra version in generated repository
+
+
 # GitCraft
 Generates a Git repository of decompiled Minecraft. For personal use only. Do not share or upload the resulting repository.
 

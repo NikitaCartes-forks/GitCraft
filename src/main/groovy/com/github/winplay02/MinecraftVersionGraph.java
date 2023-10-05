@@ -50,6 +50,7 @@ public class MinecraftVersionGraph implements Iterable<McVersion> {
 	}
 
 	private void reconnectGraph(MinecraftVersionGraph previous) {
+		//fixupNonLinearVersionsMojmap();
 		McVersion root = this.getRootVersion();
 		for (McVersion version : this) {
 			if (this.getPreviousNode(version).isEmpty() && !version.equals(root)) {
@@ -66,6 +67,82 @@ public class MinecraftVersionGraph implements Iterable<McVersion> {
 		testGraphConnectivity();
 	}
 
+	private void fixupNonLinearVersionsMojmap() {
+		this.overriddenEdges.put(this.getMinecraftVersionByName("23w13a_or_b"),
+			this.getMinecraftVersionByName("23w13a_or_b_original"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.14_combat-0"),
+			this.getMinecraftVersionByName("1.14.4"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.14_combat-3"),
+			this.getMinecraftVersionByName("1.14_combat-0"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.15_combat-1"),
+			this.getMinecraftVersionByName("1.15-pre3"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.15_combat-6"),
+			this.getMinecraftVersionByName("1.15.2-pre2"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.16_combat-0"),
+			this.getMinecraftVersionByName("1.16.2-pre3"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.16_combat-1"),
+			this.getMinecraftVersionByName("1.16.2"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.16_combat-2"),
+			this.getMinecraftVersionByName("1.16_combat-1"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.16_combat-3"),
+			this.getMinecraftVersionByName("1.16_combat-2"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.16_combat-4"),
+			this.getMinecraftVersionByName("1.16_combat-3"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.16_combat-5"),
+			this.getMinecraftVersionByName("1.16_combat-4"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.16_combat-6"),
+			this.getMinecraftVersionByName("1.16_combat-5"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-1"),
+			this.getMinecraftVersionByName("1.17.1"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-2"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-1"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-3"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-2"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-4"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-3"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-5"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-4"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-6"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-5"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-7"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-6"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.19_deep_dark_experimental_snapshot-1"),
+			this.getMinecraftVersionByName("1.18.1"));
+	}
+
+	private void fixupNonLinearVersionsYarn() {
+		this.overriddenEdges.put(this.getMinecraftVersionByName("23w13a_or_b"),
+			this.getMinecraftVersionByName("23w13a"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.14_combat-0"),
+			this.getMinecraftVersionByName("1.14.4"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.14_combat-3"),
+			this.getMinecraftVersionByName("1.14_combat-0"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.15_combat-1"),
+			this.getMinecraftVersionByName("1.15-pre3"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.15_combat-6"),
+			this.getMinecraftVersionByName("1.15.2-pre2"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.16_combat-0"),
+			this.getMinecraftVersionByName("1.16.2-pre3"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.16_combat-3"),
+			this.getMinecraftVersionByName("1.16.2"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-1"),
+			this.getMinecraftVersionByName("1.17.1"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-2"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-1"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-3"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-2"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-4"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-3"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-5"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-4"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-6"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-5"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.18_experimental-snapshot-7"),
+			this.getMinecraftVersionByName("1.18_experimental-snapshot-6"));
+		this.overriddenEdges.put(this.getMinecraftVersionByName("1.19_deep_dark_experimental_snapshot-1"),
+			this.getMinecraftVersionByName("1.18.1"));
+	}
+
 	private boolean testGraphConnectivity() {
 		McVersion root = this.getRootVersion();
 		for (McVersion version : this) {
@@ -80,7 +157,7 @@ public class MinecraftVersionGraph implements Iterable<McVersion> {
 	protected static final Pattern LINEAR_SNAPSHOT_REGEX = Pattern.compile("(^\\d\\dw\\d\\d[a-z]$)|(^\\d.\\d+(.\\d+)?(-(pre|rc)\\d+|_[a-z_\\-]+snapshot-\\d+| Pre-Release \\d+)?$)");
 
 	public static boolean isVersionNonLinearSnapshot(McVersion mcVersion) {
-		return mcVersion.snapshot && (Objects.equals(mcVersion.version, "15w14a") || !(LINEAR_SNAPSHOT_REGEX.matcher(mcVersion.version).matches())); // mark 15w14a explicit as april fools snapshot, since this case should not be covered by the regex
+		return mcVersion.snapshot && (Objects.equals(mcVersion.version, "15w14a") || !(LINEAR_SNAPSHOT_REGEX.matcher(mcVersion.version).matches()) || mcVersion.version.contains("experimental")); // mark 15w14a explicit as april fools snapshot, since this case should not be covered by the regex
 	}
 
 	public static String fixupSemver(String proposedSemVer) {
@@ -240,11 +317,36 @@ public class MinecraftVersionGraph implements Iterable<McVersion> {
 			case "1.19-alpha.22.13.oneblockatatime" -> {
 				return "1.19-alpha.22.13.a";
 			}
-			case "1.20-alpha.23.13.ab" -> {
-				return "1.20-alpha.23.13.a";
-			}
 			case "1.20-alpha.23.13.ab.original" -> {
 				return "1.20-alpha.23.13.a";
+			}
+			case "1.20-alpha.23.13.ab.replaced" -> {
+				return "1.20-alpha.23.13.ab.original";
+			}
+			// Experimental
+			case "1.18-alpha.0.0.Experimental.1" -> {
+				return "1.17.1";
+			}
+			case "1.18-alpha.0.0.Experimental.2" -> {
+				return "1.18-alpha.0.0.Experimental.1";
+			}
+			case "1.18-alpha.0.0.Experimental.3" -> {
+				return "1.18-alpha.0.0.Experimental.2";
+			}
+			case "1.18-alpha.0.0.Experimental.4" -> {
+				return "1.18-alpha.0.0.Experimental.3";
+			}
+			case "1.18-alpha.0.0.Experimental.5" -> {
+				return "1.18-alpha.0.0.Experimental.4";
+			}
+			case "1.18-alpha.0.0.Experimental.6" -> {
+				return "1.18-alpha.0.0.Experimental.5";
+			}
+			case "1.18-alpha.0.0.Experimental.7" -> {
+				return "1.18-alpha.0.0.Experimental.6";
+			}
+			case "1.19-alpha.0.0.Experimental.1" -> {
+				return "1.18.1";
 			}
 			default -> {
 				return null;
@@ -285,6 +387,11 @@ public class MinecraftVersionGraph implements Iterable<McVersion> {
 	}
 
 	public MinecraftVersionGraph filterMapping(MappingHelper.MappingFlavour mappingFlavour, MappingHelper.MappingFlavour[] mappingFallback) {
+		if (mappingFlavour.equals(MappingHelper.MappingFlavour.YARN)) {
+			fixupNonLinearVersionsYarn();
+		} else {
+			fixupNonLinearVersionsMojmap();
+		}
 		return new MinecraftVersionGraph(this, (entry -> mappingFlavour.doMappingsExist(entry.getValue()) || (mappingFallback != null && mappingFallback.length > 0 && Arrays.stream(mappingFallback).anyMatch(mapping -> mapping.doMappingsExist(entry.getValue())))));
 	}
 

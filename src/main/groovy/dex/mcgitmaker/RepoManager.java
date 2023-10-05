@@ -123,7 +123,7 @@ class RepoManager implements Closeable {
 		MiscHelper.println("Version: %s", mcVersion.version);
 		String target_branch;
 		if (git.getRepository().resolve(Constants.HEAD) != null) { // Don't run on empty repo
-			target_branch = MinecraftVersionGraph.isVersionNonLinearSnapshot(mcVersion) ? mcVersion.version : GitCraft.config.gitMainlineLinearBranch;
+			target_branch = MinecraftVersionGraph.isVersionNonLinearSnapshot(mcVersion) ? resolveNonLinearBranch(mcVersion) : GitCraft.config.gitMainlineLinearBranch;
 			checkoutVersionBranch(target_branch.replace(" ", "-"), mcVersion);
 			if (findVersionCurrentBranch(mcVersion)) {
 				MiscHelper.println("Version %s already exists in repo, skipping", mcVersion.version);
@@ -163,8 +163,63 @@ class RepoManager implements Closeable {
 			Date version_date = new Date(OffsetDateTime.parse(mcVersion.time).toInstant().toEpochMilli());
 			PersonIdent author = new PersonIdent(GitCraft.config.gitUser, GitCraft.config.gitMail, version_date, TimeZone.getTimeZone("UTC"));
 			git.commit().setMessage(mcVersion.toCommitMessage()).setAuthor(author).setCommitter(author).setSign(false).call();
+			if (!mcVersion.version.equals("23w13a_or_b_original")) {
+				git.tag().setMessage(mcVersion.toCommitMessage()).setName(mcVersion.toCommitMessage().replace(" ", "_")).setTagger(author).setSigned(false).call();
+			}
 		});
 		MiscHelper.println("Committed %s to the repository! (Target Branch is %s)", mcVersion.version, target_branch + (MinecraftVersionGraph.isVersionNonLinearSnapshot(mcVersion) ? " (non-linear)" : ""));
+	}
+
+	private String resolveNonLinearBranch(McVersion mcVersion) {
+		switch (mcVersion.loaderVersion) {
+			// Combat
+			case "1.14.3-rc.4.combat.1" -> {
+				return "Combat-Snapshot/1.14.3";
+			}
+			case "1.14.5-combat.2", "1.14.5-combat.3" -> {
+				return "Combat-Snapshot/1.14.4";
+			}
+            case "1.15-rc.3.combat.4" -> {
+				return "Combat-Snapshot/1.15";
+			}
+			case "1.15.2-rc.2.combat.5" -> {
+				return "Combat-Snapshot/1.15.2";
+			}
+			case "1.16.2-beta.3.combat.6" -> {
+				return "Combat-Snapshot/1.16.2-pre3";
+			}
+			case "1.16.3-combat.7" -> {
+				return "Combat-Snapshot/1.16.2";
+			}
+			case "1.16.3-combat.7.b", "1.16.3-combat.7.c", "1.16.3-combat.8", "1.16.3-combat.8.b", "1.16.3-combat.8.c" -> {
+				return "Combat-Snapshot/1.16.3";
+			}
+            // April
+			case "1.14-alpha.19.13.shareware" -> {
+				return "April-Snapshot/3D_Shareware_v1.34";
+			}
+			case "1.16-alpha.20.13.inf" -> {
+				return "April-Snapshot/20w14infinite";
+			}
+			case "1.19-alpha.22.13.oneblockatatime" -> {
+				return "April-Snapshot/22w13oneblockatatime";
+			}
+			case "1.20-alpha.23.13.ab.original", "1.20-alpha.23.13.ab.replaced" -> {
+				return "April-Snapshot/23w13a_or_b";
+			}
+            // Experimental
+			case "1.18-alpha.0.0.Experimental.1", "1.18-alpha.0.0.Experimental.2", "1.18-alpha.0.0.Experimental.3",
+				"1.18-alpha.0.0.Experimental.4", "1.18-alpha.0.0.Experimental.5", "1.18-alpha.0.0.Experimental.6",
+				"1.18-alpha.0.0.Experimental.7" -> {
+				return "Experimental-Snapshot/1.18";
+			}
+            case "1.19-alpha.0.0.Experimental.1" -> {
+				return "Experimental-Snapshot/1.19";
+			}
+			default -> {
+				return mcVersion.loaderVersion;
+			}
+		}
 	}
 
 	Git setupRepo() throws GitAPIException {

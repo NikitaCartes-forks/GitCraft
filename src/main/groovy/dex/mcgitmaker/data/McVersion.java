@@ -102,7 +102,7 @@ public class McVersion {
 	}
 
 	public String toCommitMessage() {
-		return this.version + "\n\nSemVer: " + this.loaderVersion;
+		return this.version;
 	}
 
 	@Override
