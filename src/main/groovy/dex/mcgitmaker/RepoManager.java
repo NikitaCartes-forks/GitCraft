@@ -117,6 +117,11 @@ class RepoManager implements Closeable {
 		if (GitCraft.config.loadAssets && GitCraft.config.loadAssetsExtern) {
 			McMetadata.copyExternalAssetsToRepo(mcVersion, this.root_path);
 		}
+
+		// Copy additional files
+		if (GitCraft.config.additionalFilesPath != null) {
+			MiscHelper.copyLargeDir(GitCraft.config.additionalFilesPath, this.root_path);
+		}
 	}
 
 	void commitDecompiled(McVersion mcVersion, MappingHelper.MappingFlavour mappingFlavour) throws GitAPIException, IOException {

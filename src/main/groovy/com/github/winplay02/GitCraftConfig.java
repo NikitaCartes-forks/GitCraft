@@ -31,6 +31,7 @@ public class GitCraftConfig {
 	public boolean onlyStableReleases = false;
 	public boolean onlySnapshots = false;
 	public Path overrideRepositoryPath = null;
+	public Path additionalFilesPath = null;
 
 	/// Optional settings
 	public String[] onlyVersion = null;
@@ -128,6 +129,9 @@ public class GitCraftConfig {
 		}
 		if (overrideRepositoryPath != null) {
 			MiscHelper.println("Repository path is overridden. This may lead to various errors (see help). Proceed with caution. Target: %s", overrideRepositoryPath);
+		}
+		if (additionalFilesPath != null) {
+			MiscHelper.println("Additional files path. If present files from that directory will be putted in resulting repo. Target: %s", additionalFilesPath);
 		}
 	}
 

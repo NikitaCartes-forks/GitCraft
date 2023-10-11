@@ -34,6 +34,8 @@ class GitCraftCli {
 		cli_args._(longOpt: 'only-snapshot', 'Only decompiles snapshots (includes pending and non-linear, if not otherwise specified).');
 		cli_args._(longOpt: 'override-repo-target', args: 1, argName: 'path', type: Path,
 			'Changes the location of the target repository, as repo names may get quite long and unintuitive. If not used carefully, this can lead to repositories with unwanted mixed mappings or straight up refuse to work as some versions in the target repository may be missing.');
+		cli_args._(longOpt: 'additional-files-path', args: 1, argName: 'path', type: Path,
+			'Additional files path. If present files from that directory will be putted in resulting repo.')
 		cli_args.h(longOpt: 'help', 'Displays this help screen');
 		return cli_args;
 	}
@@ -75,6 +77,10 @@ class GitCraftCli {
 		if (cli_args_parsed.hasOption("override-repo-target")) {
 			Path repositoryPath = cli_args_parsed.'override-repo-target';
 			config.overrideRepositoryPath = repositoryPath.toAbsolutePath();
+		}
+		if (cli_args_parsed.hasOption("additional-files-path")) {
+			Path additionalFilesPath = cli_args_parsed.'additional-files-path';
+			config.additionalFilesPath = additionalFilesPath.toAbsolutePath();
 		}
 		/// Validate parameters (and combinations), which are wrong without looking at any context
 		if (config.onlyStableReleases && config.onlySnapshots) {
