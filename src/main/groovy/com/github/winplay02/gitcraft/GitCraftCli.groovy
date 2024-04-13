@@ -52,6 +52,8 @@ class GitCraftCli {
         cli_args._(longOpt: 'create-version-branches', 'Creates a separate branch for each version, including linear versions. This may be useful for quickly switching between multiple versions.')
         cli_args._(longOpt: 'create-stable-version-branches', 'Creates a separate branch for each stable linear version. This may be useful for quickly switching between multiple versions.')
 		cli_args._(longOpt: 'sort-json', 'Sorts JSON objects contained in JSON files (e.g. models, language files, ...) in natural order. This is disabled by default as it modifies original data.')
+		cli_args._(longOpt: 'additional-files-path', args: 1, argName: 'path', type: Path,
+			'Additional files path. If present files from that directory will be putted in resulting repo.')
 		cli_args.h(longOpt: 'help', 'Displays this help screen');
 		return cli_args;
 	}
@@ -117,6 +119,10 @@ class GitCraftCli {
 		if (cli_args_parsed.hasOption("override-repo-target")) {
 			Path repositoryPath = cli_args_parsed.'override-repo-target';
 			config.overrideRepositoryPath = repositoryPath.toAbsolutePath();
+		}
+		if (cli_args_parsed.hasOption("additional-files-path")) {
+			Path additionalFilesPath = cli_args_parsed.'additional-files-path';
+			config.additionalFilesPath = additionalFilesPath.toAbsolutePath();
 		}
 		/// Validate parameters (and combinations), which are wrong without looking at any context
 		if (config.onlyStableReleases && config.onlySnapshots) {

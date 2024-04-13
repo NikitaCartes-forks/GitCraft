@@ -38,9 +38,10 @@ public class GitCraftConfig {
 	/// Repository settings
 	public boolean noRepo = false;
 	public Path overrideRepositoryPath = null;
+	public Path additionalFilesPath = null;
 	public String gitUser = "Mojang";
-	public String gitMail = "gitcraft@decompiled.mc";
-	public String gitMainlineLinearBranch = "master";
+	public String gitMail = "dev@mojang.com";
+	public String gitMainlineLinearBranch = "snapshot";
     public boolean createVersionBranches = false;
     public boolean createStableVersionBranches = false;
 
@@ -168,6 +169,9 @@ public class GitCraftConfig {
 		}
 		if (overrideRepositoryPath != null) {
 			MiscHelper.println("Repository path is overridden. This may lead to various errors (see help). Proceed with caution. Target: %s", overrideRepositoryPath);
+		}
+		if (additionalFilesPath != null) {
+			MiscHelper.println("Additional files path. If present files from that directory will be putted in resulting repo. Target: %s", additionalFilesPath);
 		}
         if (createVersionBranches) {
             MiscHelper.println("A seperate branch will be created for each version.");

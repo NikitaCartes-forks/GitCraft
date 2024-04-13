@@ -126,7 +126,7 @@ public record OrderedVersion(
 	}
 
 	public String toCommitMessage() {
-		return this.launcherFriendlyVersionName() + "\n\nSemVer: " + this.semanticVersion();
+		return this.launcherFriendlyVersionName();
 	}
 
 	public int compareTo(SemanticVersion o) {

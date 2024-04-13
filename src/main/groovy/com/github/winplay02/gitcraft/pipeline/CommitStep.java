@@ -71,6 +71,8 @@ public class CommitStep extends Step {
 			copyAssets(pipelineCache, mcVersion, repo);
 			// External Assets
 			copyExternalAssets(pipelineCache, mcVersion, repo);
+			// Copy additional files
+			copyAdditionalFiles(repo);
 		});
 		// Optionally sort copied JSON files
 		if (GitCraft.config.sortJsonObjects) {
@@ -290,6 +292,12 @@ public class CommitStep extends Step {
 		}
 	}
 
+	private void copyAdditionalFiles(RepoWrapper repo) {
+		if (GitCraft.config.additionalFilesPath != null) {
+			MiscHelper.copyLargeDir(GitCraft.config.additionalFilesPath, repo.getRootPath());
+		}
+	}
+
 	private void createCommit(OrderedVersion mcVersion, RepoWrapper repo) throws GitAPIException {
 		// Remove removed files from index
 		repo.getGit().add().addFilepattern(".").setRenormalize(false).setUpdate(true).call();
@@ -298,6 +306,7 @@ public class CommitStep extends Step {
 		Date version_date = new Date(OffsetDateTime.parse(mcVersion.timestamp()).toInstant().toEpochMilli());
 		PersonIdent author = new PersonIdent(GitCraft.config.gitUser, GitCraft.config.gitMail, version_date, TimeZone.getTimeZone("UTC"));
 		repo.getGit().commit().setMessage(mcVersion.toCommitMessage()).setAuthor(author).setCommitter(author).setSign(false).call();
+		repo.getGit().tag().setMessage(mcVersion.toCommitMessage()).setName(mcVersion.toCommitMessage().replace(" ", "_")).setTagger(author).setSigned(false).call();
 	}
 
 	private void createBranchFromCurrentCommit(OrderedVersion mcVersion, RepoWrapper repo) throws GitAPIException, IOException {

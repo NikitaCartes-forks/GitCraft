@@ -35,3 +35,5 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+/minecraft-repo-mojmap/
+/minecraft-repo-yarn/
