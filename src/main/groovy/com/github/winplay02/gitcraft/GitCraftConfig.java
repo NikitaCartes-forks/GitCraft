@@ -31,16 +31,17 @@ public class GitCraftConfig {
 	public boolean printExistingFileChecksumMatchingSkipped = false;
 	public boolean printNotRunSteps = false;
 	public int failedFetchRetryInterval = 500;
-	public int remappingThreads = Runtime.getRuntime().availableProcessors() - 3;
-	public int decompilingThreads = Runtime.getRuntime().availableProcessors() - 3;
+	public int remappingThreads = Runtime.getRuntime().availableProcessors() - 1;
+	public int decompilingThreads = Runtime.getRuntime().availableProcessors() - 1;
 	public boolean useHardlinks = true;
 
 	/// Repository settings
 	public boolean noRepo = false;
 	public Path overrideRepositoryPath = null;
+	public Path additionalFilesPath = null;
 	public String gitUser = "Mojang";
-	public String gitMail = "gitcraft@decompiled.mc";
-	public String gitMainlineLinearBranch = "master";
+	public String gitMail = "dev@mojang.com";
+	public String gitMainlineLinearBranch = "snapshot";
     public boolean createVersionBranches = false;
     public boolean createStableVersionBranches = false;
 
@@ -64,7 +65,7 @@ public class GitCraftConfig {
 	public String[] excludedVersion = null;
 
 	/// Mapping quirks
-	public static final String MIN_SUPPORTED_FABRIC_LOADER = "0.16.11";
+	public static final String MIN_SUPPORTED_FABRIC_LOADER = "0.16.13";
 
 	public static final SemanticVersion INTERMEDIARY_MAPPINGS_START_VERSION, YARN_MAPPINGS_START_VERSION, YARN_CORRECTLY_ORIENTATED_MAPPINGS_VERSION, PARCHMENT_START_VERSION;
 
@@ -168,6 +169,9 @@ public class GitCraftConfig {
 		}
 		if (overrideRepositoryPath != null) {
 			MiscHelper.println("Repository path is overridden. This may lead to various errors (see help). Proceed with caution. Target: %s", overrideRepositoryPath);
+		}
+		if (additionalFilesPath != null) {
+			MiscHelper.println("Additional files path. If present files from that directory will be putted in resulting repo. Target: %s", additionalFilesPath);
 		}
         if (createVersionBranches) {
             MiscHelper.println("A seperate branch will be created for each version.");

@@ -71,6 +71,8 @@ public class CommitStep extends Step {
 			copyAssets(pipelineCache, mcVersion, repo);
 			// External Assets
 			copyExternalAssets(pipelineCache, mcVersion, repo);
+			// Copy additional files
+			copyAdditionalFiles(repo);
 		});
 		// Optionally sort copied JSON files
 		if (GitCraft.config.sortJsonObjects) {
@@ -111,9 +113,44 @@ public class CommitStep extends Step {
 	}
 
 	protected String getBranchNameForVersion(OrderedVersion mcVersion) {
-		return (MinecraftVersionGraph.isVersionNonLinearSnapshot(mcVersion) ? mcVersion.launcherFriendlyVersionName() : GitCraft.config.gitMainlineLinearBranch).replace(" ", "-");
-	}
+		if (!MinecraftVersionGraph.isVersionNonLinearSnapshot(mcVersion)) {
+			return GitCraft.config.gitMainlineLinearBranch;
+		}
+		return switch (mcVersion.launcherFriendlyVersionName()) {
+			case "3D Shareware v1.34" -> "April-Snapshots/3D-Shareware-v1.34";
+			case "20w14infinite" -> "April-Snapshots/20w14infinite";
+			case "22w13oneblockatatime" -> "April-Snapshots/22w13oneblockatatime";
+			case "23w13a_or_b_original",
+				 "23w13a_or_b" -> "April-Snapshots/23w13a_or_b";
+			case "24w14potato_original",
+				 "24w14potato" -> "April-Snapshots/24w14potato";
+			case "25w14craftmine" -> "April-Snapshots/25w14craftmine";
 
+			case "1.14_combat-212796" -> "Combat-Snapshots/1.14.3-pre4";
+			case "1.14_combat-0",
+				 "1.14_combat-3" -> "Combat-Snapshots/1.14.4";
+			case "1.15_combat-1" -> "Combat-Snapshots/1.15-pre3";
+			case "1.15_combat-6" -> "Combat-Snapshots/1.15.2-pre2";
+			case "1.16_combat-0" -> "Combat-Snapshots/1.16.2-pre3";
+			case "1.16_combat-1",
+				 "1.16_combat-2",
+				 "1.16_combat-3",
+				 "1.16_combat-4",
+				 "1.16_combat-5",
+				 "1.16_combat-6" -> "Combat-Snapshots/1.16.2";
+
+			case "1.18_experimental-snapshot-1",
+				 "1.18_experimental-snapshot-2",
+				 "1.18_experimental-snapshot-3",
+				 "1.18_experimental-snapshot-4",
+				 "1.18_experimental-snapshot-5",
+				 "1.18_experimental-snapshot-6",
+				 "1.18_experimental-snapshot-7" -> "Experimental-Snapshots/1.18";
+			case "1.19_deep_dark_experimental_snapshot-1" -> "Experimental-Snapshots/1.19";
+
+			default -> mcVersion.launcherFriendlyVersionName().replace(" ", "-");
+		};
+	}
 	private Optional<String> switchBranchIfNeeded(OrderedVersion mcVersion, MinecraftVersionGraph versionGraph, RepoWrapper repo) throws IOException, GitAPIException {
 		String target_branch;
 		if (repo.getGit().getRepository().resolve(Constants.HEAD) != null) { // Don't run on empty repo
@@ -290,6 +327,12 @@ public class CommitStep extends Step {
 		}
 	}
 
+	private void copyAdditionalFiles(RepoWrapper repo) {
+		if (GitCraft.config.additionalFilesPath != null) {
+			MiscHelper.copyLargeDir(GitCraft.config.additionalFilesPath, repo.getRootPath());
+		}
+	}
+
 	private void createCommit(OrderedVersion mcVersion, RepoWrapper repo) throws GitAPIException {
 		// Remove removed files from index
 		repo.getGit().add().addFilepattern(".").setRenormalize(false).setUpdate(true).call();
@@ -298,6 +341,7 @@ public class CommitStep extends Step {
 		Date version_date = new Date(OffsetDateTime.parse(mcVersion.timestamp()).toInstant().toEpochMilli());
 		PersonIdent author = new PersonIdent(GitCraft.config.gitUser, GitCraft.config.gitMail, version_date, TimeZone.getTimeZone("UTC"));
 		repo.getGit().commit().setMessage(mcVersion.toCommitMessage()).setAuthor(author).setCommitter(author).setSign(false).call();
+		repo.getGit().tag().setMessage(mcVersion.toCommitMessage()).setName(mcVersion.toCommitMessage().replace(" ", "_")).setTagger(author).setSigned(false).call();
 	}
 
 	private void createBranchFromCurrentCommit(OrderedVersion mcVersion, RepoWrapper repo) throws GitAPIException, IOException {

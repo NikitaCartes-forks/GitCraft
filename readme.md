@@ -65,7 +65,7 @@ Options:
                                including linear versions. This may be useful
                                for quickly switching between multiple versions.
       --create-stable-version-branches
-                             Creates a separate branch for each stable linear 
+                             Creates a separate branch for each stable linear
                                versions. This may be useful for quickly switching
                                between multiple versions.
       --exclude-version[=<version>[,<version>]...]
@@ -201,3 +201,7 @@ meta, put the JSON files of these versions (e.g. 1_16_combat-0.json) into the
 
 - To remove everything except generated repositories and extra-versions `git clean -d -f -e extra-versions -x`. Cleans meta files and artifacts. If a decompilation is needed, it needs to be done again.
 - To bundle a repository, use `git bundle create repo.bundle --all` inside the repository working directory
+
+## To replicate my repositories
+- `gradlew run --args="--no-assets --no-datapack --no-datagen-report --additional-files-path=additional-files/mojmap"`
+- `gradlew run --args="--no-assets --no-datapack --no-datagen-report --mappings=yarn --additional-files-path=additional-files/yarn"`
