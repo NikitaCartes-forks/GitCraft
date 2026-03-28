@@ -22,6 +22,7 @@ import com.google.gson.JsonSyntaxException;
 import net.fabricmc.loom.util.FileSystemUtil;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -70,6 +71,8 @@ public record Committer(GitCraftStepConfig config) implements GitCraftStepWorker
 			copyAssets(pipeline, context, input);
 			// External Assets
 			copyExternalAssets(pipeline, context, input);
+			// Copy additional files
+			copyAdditionalFiles(context.repository());
 		});
 		// Optionally sort copied JSON files
 		if (GitCraft.getDataConfiguration().sortJsonObjects()) {
@@ -113,11 +116,45 @@ public record Committer(GitCraftStepConfig config) implements GitCraftStepWorker
 	private String getBranchNameForVersion(OrderedVersion mcVersion) {
 		OrderedVersion branch = GitCraft.versionGraph.walkBackToBranchPoint(mcVersion);
 		OrderedVersion root = GitCraft.versionGraph.walkBackToRoot(mcVersion);
-		return (GitCraft.versionGraph.isOnMainBranch(mcVersion)
-			? GitCraft.versionGraph.roots.size() == 1 || root == GitCraft.versionGraph.getMainRootVersion()
-			? GitCraft.getRepositoryConfiguration().gitMainlineLinearBranch()
-			: root.launcherFriendlyVersionName()
-			: branch.launcherFriendlyVersionName()).replace(" ", "-");
+		if (GitCraft.versionGraph.isOnMainBranch(mcVersion)) {
+			return GitCraft.versionGraph.roots.size() == 1 || root == GitCraft.versionGraph.getMainRootVersion()
+				? GitCraft.getRepositoryConfiguration().gitMainlineLinearBranch()
+				: root.launcherFriendlyVersionName().replace(" ", "-");
+		}
+		return switch (mcVersion.launcherFriendlyVersionName()) {
+			case "3D Shareware v1.34" -> "April-Snapshots/3D-Shareware-v1.34";
+			case "20w14infinite" -> "April-Snapshots/20w14infinite";
+			case "22w13oneblockatatime" -> "April-Snapshots/22w13oneblockatatime";
+			case "23w13a_or_b_original",
+					"23w13a_or_b" -> "April-Snapshots/23w13a_or_b";
+			case "24w14potato_original",
+					"24w14potato" -> "April-Snapshots/24w14potato";
+			case "25w14craftmine" -> "April-Snapshots/25w14craftmine";
+
+			case "1.14_combat-212796" -> "Combat-Snapshots/1.14.3-pre4";
+			case "1.14_combat-0",
+					"1.14_combat-3" -> "Combat-Snapshots/1.14.4";
+			case "1.15_combat-1" -> "Combat-Snapshots/1.15-pre3";
+			case "1.15_combat-6" -> "Combat-Snapshots/1.15.2-pre2";
+			case "1.16_combat-0" -> "Combat-Snapshots/1.16.2-pre3";
+			case "1.16_combat-1",
+					"1.16_combat-2",
+					"1.16_combat-3",
+					"1.16_combat-4",
+					"1.16_combat-5",
+					"1.16_combat-6" -> "Combat-Snapshots/1.16.2";
+
+			case "1.18_experimental-snapshot-1",
+					"1.18_experimental-snapshot-2",
+					"1.18_experimental-snapshot-3",
+					"1.18_experimental-snapshot-4",
+					"1.18_experimental-snapshot-5",
+					"1.18_experimental-snapshot-6",
+					"1.18_experimental-snapshot-7" -> "Experimental-Snapshots/1.18";
+			case "1.19_deep_dark_experimental_snapshot-1" -> "Experimental-Snapshots/1.19";
+
+			default -> branch.launcherFriendlyVersionName().replace(" ", "-");
+		};
 	}
 
 	private Optional<String> switchBranchIfNeeded(OrderedVersion mcVersion, AbstractVersionGraph<OrderedVersion> versionGraph, RepoWrapper repo) throws IOException, GitAPIException {
@@ -310,8 +347,18 @@ public record Committer(GitCraftStepConfig config) implements GitCraftStepWorker
 		}
 	}
 
+	private void copyAdditionalFiles(RepoWrapper repo) {
+		if (GitCraft.getTransientApplicationConfiguration().additionalFilesPath() != null) {
+			MiscHelper.copyLargeDir(GitCraft.getTransientApplicationConfiguration().additionalFilesPath(), repo.getRootPath());
+		}
+	}
+
 	private void createCommit(OrderedVersion mcVersion, RepoWrapper repo) throws GitAPIException {
-		repo.createCommitUsingAllChanges(GitCraft.getRepositoryConfiguration().gitUser(), GitCraft.getRepositoryConfiguration().gitMail(), new Date(Objects.requireNonNull(mcVersion.timestamp()).toInstant().toEpochMilli()), TimeZone.getTimeZone(Objects.requireNonNull(mcVersion.timestamp()).getZone()), mcVersion.toCommitMessage());
+		Date versionDate = new Date(Objects.requireNonNull(mcVersion.timestamp()).toInstant().toEpochMilli());
+		TimeZone versionTimeZone = TimeZone.getTimeZone(Objects.requireNonNull(mcVersion.timestamp()).getZone());
+		repo.createCommitUsingAllChanges(GitCraft.getRepositoryConfiguration().gitUser(), GitCraft.getRepositoryConfiguration().gitMail(), versionDate, versionTimeZone, mcVersion.toCommitMessage());
+		PersonIdent tagger = new PersonIdent(GitCraft.getRepositoryConfiguration().gitUser(), GitCraft.getRepositoryConfiguration().gitMail(), versionDate.toInstant(), versionTimeZone.toZoneId());
+		repo.getGit().tag().setMessage(mcVersion.toCommitMessage()).setName(mcVersion.toCommitMessage().replace(" ", "_")).setTagger(tagger).setSigned(false).call();
 	}
 
 	private void createBranchFromCurrentCommit(OrderedVersion mcVersion, RepoWrapper repo) throws GitAPIException, IOException {

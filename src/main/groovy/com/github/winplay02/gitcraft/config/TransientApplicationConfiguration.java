@@ -12,6 +12,7 @@ import java.util.Map;
  *
  * @param noRepo Whether the committing to the repository step should be skipped
  * @param overrideRepositoryPath Path to a repository that should be used instead of the calculated repository path
+ * @param additionalFilesPath Path to additional files that should be copied into the resulting repository
  * @param refreshDecompilation Whether existing artifacts should be deleted and generated (useful, e.g. if there are decompiler updates)
  * @param refreshOnlyVersion Whether a specific versions should be refreshed
  * @param refreshMinVersion A min version that should be refreshed (all versions greater than this version are also refreshed)
@@ -19,6 +20,7 @@ import java.util.Map;
  */
 public record TransientApplicationConfiguration(boolean noRepo,
 												Path overrideRepositoryPath,
+												Path additionalFilesPath,
 												boolean refreshDecompilation,
 												String[] refreshOnlyVersion,
 												String refreshMinVersion,
@@ -27,6 +29,7 @@ public record TransientApplicationConfiguration(boolean noRepo,
 
 	public static final TransientApplicationConfiguration DEFAULT = new TransientApplicationConfiguration(
 		false,
+		null,
 		null,
 		false,
 		null,
@@ -45,6 +48,9 @@ public record TransientApplicationConfiguration(boolean noRepo,
 		info.add(String.format("Repository creation and versioning is: %s", this.noRepo() ? "skipped" : "enabled"));
 		if (this.overrideRepositoryPath() != null) {
 			info.add(String.format("Repository path is overridden. This may lead to various errors (see help). Proceed with caution. Target: %s", this.overrideRepositoryPath()));
+		}
+		if (this.additionalFilesPath() != null) {
+			info.add(String.format("Additional files path. If present files from that directory will be put in resulting repo. Target: %s", this.additionalFilesPath()));
 		}
 		if (this.refreshDecompilation() && !this.isRefreshOnlyVersion() && !this.isRefreshMinVersion() && !this.isRefreshMaxVersion()) {
 			info.add(String.format("All / specified version(s) will be: %s", this.refreshDecompilation() ? "deleted and decompiled again" : "reused if existing"));

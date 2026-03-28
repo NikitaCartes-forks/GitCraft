@@ -76,6 +76,9 @@ Powered by:
 ```
 Usage: gradlew run --args="[Options]"
 Options:
+      --additional-files-path
+                             If presented files from the given path will be
+                               copied into the generated repository.
       --create-stable-version-branches
                              Creates a separate branch for each stable linear
                                version. This may be useful for quickly
