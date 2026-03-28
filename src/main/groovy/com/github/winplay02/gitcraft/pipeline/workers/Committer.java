@@ -358,7 +358,7 @@ public record Committer(GitCraftStepConfig config) implements GitCraftStepWorker
 		TimeZone versionTimeZone = TimeZone.getTimeZone(Objects.requireNonNull(mcVersion.timestamp()).getZone());
 		repo.createCommitUsingAllChanges(GitCraft.getRepositoryConfiguration().gitUser(), GitCraft.getRepositoryConfiguration().gitMail(), versionDate, versionTimeZone, mcVersion.toCommitMessage());
 		PersonIdent tagger = new PersonIdent(GitCraft.getRepositoryConfiguration().gitUser(), GitCraft.getRepositoryConfiguration().gitMail(), versionDate.toInstant(), versionTimeZone.toZoneId());
-		repo.getGit().tag().setMessage(mcVersion.toCommitMessage()).setName(mcVersion.toCommitMessage().replace(" ", "_")).setTagger(tagger).setSigned(false).call();
+		repo.getGit().tag().setMessage(mcVersion.toCommitMessage()).setName(mcVersion.launcherFriendlyVersionName().replace(" ", "_")).setTagger(tagger).setSigned(false).call();
 	}
 
 	private void createBranchFromCurrentCommit(OrderedVersion mcVersion, RepoWrapper repo) throws GitAPIException, IOException {
