@@ -1,6 +1,7 @@
 package com.github.winplay02.gitcraft.mappings.yarn;
 
 import com.github.winplay02.gitcraft.GitCraft;
+import com.github.winplay02.gitcraft.GitCraftApplication;
 import com.github.winplay02.gitcraft.GitCraftQuirks;
 import com.github.winplay02.gitcraft.mappings.Mapping;
 import com.github.winplay02.gitcraft.pipeline.GitCraftPipelineFilesystemRoot;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public class FabricIntermediaryMappings extends Mapping {
 	@Override
@@ -78,7 +80,22 @@ public class FabricIntermediaryMappings extends Mapping {
 		}
 		Files.deleteIfExists(mappingsFile);
 		Path mappingsV1 = getMappingsPathInternalV1(versionContext.targetVersion());
-		StepStatus downloadStatus = RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryGitHub(versionContext.executorService(), "FabricMC/intermediary", "master", String.format("mappings/%s.tiny", mappingsIntermediaryPathQuirkVersion(versionContext.targetVersion().launcherFriendlyVersionName())), new FileSystemNetworkManager.LocalFileInfo(mappingsV1, null, null,"intermediary mapping", versionContext.targetVersion().launcherFriendlyVersionName()));
+		String quirkVersion = mappingsIntermediaryPathQuirkVersion(versionContext.targetVersion().launcherFriendlyVersionName());
+		Path fabricIntermediaryRepoPath = GitCraftApplication.getTransientApplicationConfiguration().fabricIntermediaryRepoPath();
+		StepStatus downloadStatus;
+		if (fabricIntermediaryRepoPath != null) {
+			if (!Files.isDirectory(fabricIntermediaryRepoPath)) {
+				throw new IOException(String.format("Fabric intermediary local repo path is not a valid directory: %s", fabricIntermediaryRepoPath));
+			}
+			Path localMappingFile = fabricIntermediaryRepoPath.resolve("mappings").resolve(quirkVersion + ".tiny");
+			if (!Files.exists(localMappingFile)) {
+				throw new IOException(String.format("Fabric intermediary mapping file not found for version '%s' at: %s", quirkVersion, localMappingFile));
+			}
+			Files.copy(localMappingFile, mappingsV1, StandardCopyOption.REPLACE_EXISTING);
+			downloadStatus = StepStatus.SUCCESS;
+		} else {
+			downloadStatus = RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryGitHub(versionContext.executorService(), "FabricMC/intermediary", "master", String.format("mappings/%s.tiny", quirkVersion), new FileSystemNetworkManager.LocalFileInfo(mappingsV1, null, null, "intermediary mapping", versionContext.targetVersion().launcherFriendlyVersionName()));
+		}
 		MemoryMappingTree mappingTree = new MemoryMappingTree();
 		try (BufferedReader br = Files.newBufferedReader(mappingsV1, StandardCharsets.UTF_8)) {
 			Tiny1FileReader.read(br, mappingTree);

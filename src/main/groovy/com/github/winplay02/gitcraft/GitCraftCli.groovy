@@ -77,6 +77,8 @@ class GitCraftCli {
 			'Additional files path. If present files from that directory will be put in resulting repo.')
 		cli_args._(longOpt: 'manifest-source', "Specifies the manifest source used to fetch the available versions, the mapping to semantic versions and the dependencies between versions. The Minecraft Launcher Meta (from Mojang) is selected by default. Possible values are: ${Arrays.stream(ManifestSource.values()).map(Object::toString).collect(Collectors.joining(", "))}", type: ManifestSource, argName: "manifestsrc", defaultValue: "mojang");
 		cli_args._(longOpt: 'repo-gc', 'Perform a garbage collection pass on the repository after the run. This will probably speed up any subsequent operation on the repo (e.g. viewing diffs).')
+		cli_args._(longOpt: 'fabric-intermediary-repo', args: 1, argName: 'path', type: Path,
+			'Path to a local FabricMC/intermediary git checkout. If provided, intermediary mappings will be read from this directory instead of the GitHub API.')
 		cli_args.h(longOpt: 'help', 'Displays this help screen');
 		return cli_args;
 	}
@@ -241,6 +243,11 @@ class GitCraftCli {
 			Path additionalPath = cli_args_parsed.'additional-files-path';
 			additionalFilesPath = additionalPath.toAbsolutePath();
 		}
+		Path fabricIntermediaryRepoPath = null;
+		if (cli_args_parsed.hasOption("fabric-intermediary-repo")) {
+			Path repoPath = cli_args_parsed.'fabric-intermediary-repo';
+			fabricIntermediaryRepoPath = repoPath.toAbsolutePath();
+		}
 		boolean refreshDecompilation = cli_args_parsed.hasOption("refresh");
 		String[] refreshOnlyVersion = null;
 		if (cli_args_parsed.hasOption("refresh-only-version")) {
@@ -264,7 +271,8 @@ class GitCraftCli {
 			original.refreshDecompilation() || refreshDecompilation,
 			refreshOnlyVersion,
 			refreshMinVersion,
-			refreshMaxVersion
+			refreshMaxVersion,
+			fabricIntermediaryRepoPath
 		));
 		return true;
 	}

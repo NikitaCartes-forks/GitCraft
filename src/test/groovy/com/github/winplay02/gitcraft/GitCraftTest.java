@@ -17,6 +17,7 @@ import com.github.winplay02.gitcraft.unpick.UnpickFlavour;
 import com.github.winplay02.gitcraft.util.FileSystemNetworkManager;
 import com.github.winplay02.gitcraft.util.RemoteHelper;
 import com.github.winplay02.gitcraft.util.RepoWrapper;
+import com.github.winplay02.gitcraft.manifest.metadata.GithubRepositoryBlobContent;
 import net.fabricmc.loom.api.mappings.layered.MappingsNamespace;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -43,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith({GitCraftTestingFs.class})
@@ -981,6 +983,12 @@ public class GitCraftTest {
 				}
 			}
 		}
+	}
+
+	@Test
+	public void githubBlobContentNullDownloadUrl() {
+		GithubRepositoryBlobContent blob = new GithubRepositoryBlobContent("test.tiny", "mappings/test.tiny", "abc123", 100, "https://api.github.com/...", null, "file");
+		assertNull(blob.download_url(), "download_url should be null for this test fixture");
 	}
 
 	private static ApplicationConfiguration appConfigWithManifestSource(ApplicationConfiguration original, ManifestSource manifest) {

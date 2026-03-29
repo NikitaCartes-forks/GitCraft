@@ -97,6 +97,10 @@ Options:
                                The exclusion info will be added to the
                                repository name. The normal repository will not
                                be touched.
+      --fabric-intermediary-repo=<path>
+                             Path to a local FabricMC/intermediary git checkout.
+                               If provided, intermediary mappings are read from
+                               this directory instead of the GitHub API.
       --fallback-mappings[=<mapping>[,<mapping>]...]
                              If the primary mapping fails, these mappings are
                                tried (in given order). By default none is tried

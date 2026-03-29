@@ -92,7 +92,13 @@ public class RemoteHelper {
 	public static StepStatus downloadToFileWithChecksumIfNotExistsNoRetryGitHub(Executor executor, String repository, String branch, String path, LocalFileInfo localFileInfo) {
 		String githubApiUrl = urlencodedURL(String.format("https://api.github.com/repos/%s/contents/%s?ref=%s", repository, path, branch));
 		try {
-			GithubRepositoryBlobContent apiResponse = SerializationHelper.deserialize(FileSystemNetworkManager.fetchAllFromURLSync(new URL(githubApiUrl)), GithubRepositoryBlobContent.class);
+			String apiResponseBody = FileSystemNetworkManager.fetchAllFromURLSync(new URL(githubApiUrl));
+			GithubRepositoryBlobContent apiResponse = SerializationHelper.deserialize(apiResponseBody, GithubRepositoryBlobContent.class);
+			if (apiResponse.download_url() == null) {
+				throw new IOException(String.format(
+					"GitHub API returned null download_url for repo='%s', path='%s', branch='%s'. API response: %s",
+					repository, path, branch, apiResponseBody));
+			}
 			String sha1Blob = apiResponse.sha();
 			return downloadToFileWithChecksumIfNotExists(executor, apiResponse.download_url(), new LocalFileInfo(localFileInfo.targetFile(), sha1Blob, Library.IA_GIT_BLOB_SHA1, localFileInfo.outputFileKind(), localFileInfo.outputFileId()), false);
 		} catch (IOException | URISyntaxException | InterruptedException e) {

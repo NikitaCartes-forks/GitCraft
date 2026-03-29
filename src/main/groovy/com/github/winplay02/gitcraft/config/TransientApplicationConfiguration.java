@@ -24,7 +24,8 @@ public record TransientApplicationConfiguration(boolean noRepo,
 												boolean refreshDecompilation,
 												String[] refreshOnlyVersion,
 												String refreshMinVersion,
-												String refreshMaxVersion)
+												String refreshMaxVersion,
+												Path fabricIntermediaryRepoPath)
 	implements Configuration {
 
 	public static final TransientApplicationConfiguration DEFAULT = new TransientApplicationConfiguration(
@@ -32,6 +33,7 @@ public record TransientApplicationConfiguration(boolean noRepo,
 		null,
 		null,
 		false,
+		null,
 		null,
 		null,
 		null
@@ -51,6 +53,9 @@ public record TransientApplicationConfiguration(boolean noRepo,
 		}
 		if (this.additionalFilesPath() != null) {
 			info.add(String.format("Additional files path. If present files from that directory will be put in resulting repo. Target: %s", this.additionalFilesPath()));
+		}
+		if (this.fabricIntermediaryRepoPath() != null) {
+			info.add(String.format("Fabric intermediary local repo path: %s", this.fabricIntermediaryRepoPath()));
 		}
 		if (this.refreshDecompilation() && !this.isRefreshOnlyVersion() && !this.isRefreshMinVersion() && !this.isRefreshMaxVersion()) {
 			info.add(String.format("All / specified version(s) will be: %s", this.refreshDecompilation() ? "deleted and decompiled again" : "reused if existing"));
@@ -78,6 +83,10 @@ public record TransientApplicationConfiguration(boolean noRepo,
 
 	public boolean isRefreshMaxVersion() {
 		return this.refreshMaxVersion() != null;
+	}
+
+	public boolean isFabricIntermediaryRepoPath() {
+		return this.fabricIntermediaryRepoPath() != null;
 	}
 
 	public static TransientApplicationConfiguration deserialize(Map<String, JsonElement> map) {
