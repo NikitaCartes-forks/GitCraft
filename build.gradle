@@ -30,7 +30,7 @@ tasks.withType(JavaCompile).configureEach {
 
 application {
 	mainClass = 'com.github.winplay02.gitcraft.GitCraft'
-	applicationDefaultJvmArgs = ['-Xmx4G', '-XX:+HeapDumpOnOutOfMemoryError']
+	applicationDefaultJvmArgs = ['-Xmx12G', '-XX:+HeapDumpOnOutOfMemoryError']
 }
 
 sourceSets {
