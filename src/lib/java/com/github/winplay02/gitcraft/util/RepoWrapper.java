@@ -84,7 +84,7 @@ public class RepoWrapper implements Closeable {
 	}
 
 	public boolean doesBranchExist(String target_branch) throws IOException {
-		Ref target_ref = this.git.getRepository().getRefDatabase().findRef(target_branch);
+		Ref target_ref = this.git.getRepository().getRefDatabase().exactRef(Constants.R_HEADS + target_branch);
 		return target_ref != null;
 	}
 
@@ -148,7 +148,7 @@ public class RepoWrapper implements Closeable {
 
 	public void checkoutBranch(String targetBranch) throws IOException {
 		if (!Objects.equals(this.git.getRepository().getBranch(), targetBranch)) {
-			Ref target_ref = this.git.getRepository().getRefDatabase().findRef(targetBranch);
+			Ref target_ref = this.git.getRepository().getRefDatabase().exactRef(Constants.R_HEADS + targetBranch);
 			if (target_ref == null) {
 				MiscHelper.panic("Could not find target branch '%s'", targetBranch);
 			}

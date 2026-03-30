@@ -203,7 +203,7 @@ public record Committer(GitCraftStepConfig config) implements GitCraftStepWorker
 
 	private void checkoutVersionBranch(String target_branch, OrderedVersion mcVersion, AbstractVersionGraph<OrderedVersion> versionGraph, RepoWrapper repo) throws IOException, GitAPIException {
 		if (!Objects.equals(repo.getGit().getRepository().getBranch(), target_branch)) {
-			Ref target_ref = repo.getGit().getRepository().getRefDatabase().findRef(target_branch);
+			Ref target_ref = repo.getGit().getRepository().getRefDatabase().exactRef(Constants.R_HEADS + target_branch);
 			if (target_ref == null) {
 				HashSet<RevCommit> branchPoint = findBaseForNonLinearVersion(mcVersion, versionGraph, repo);
 				if (branchPoint.isEmpty()) {
