@@ -3,6 +3,7 @@ package com.github.winplay02.gitcraft.launcher
 import com.github.winplay02.gitcraft.config.ApplicationConfiguration
 import com.github.winplay02.gitcraft.config.Configuration
 import com.github.winplay02.gitcraft.config.IntegrityConfiguration
+import com.github.winplay02.gitcraft.config.TransientApplicationConfiguration
 import com.github.winplay02.gitcraft.exceptions.ExceptionsFlavour
 import com.github.winplay02.gitcraft.manifest.ManifestSource
 import com.github.winplay02.gitcraft.mappings.MappingFlavour
@@ -13,6 +14,7 @@ import com.github.winplay02.gitcraft.util.MiscHelper
 import groovy.cli.picocli.CliBuilder
 import groovy.cli.picocli.OptionAccessor
 
+import java.nio.file.Path
 import java.util.stream.Collectors
 
 class GitCraftLauncherCli {
@@ -34,6 +36,8 @@ class GitCraftLauncherCli {
 		cli_args._(longOpt: 'signatures', "Specifies the signatures patches used to patch generics into class, field, and method declarations. None is selected by default. Possible values are: ${Arrays.stream(SignaturesFlavour.values()).map(Object::toString).collect(Collectors.joining(", "))}", type: SignaturesFlavour, argName: "signatures", defaultValue: "none");
 		cli_args._(longOpt: 'nests', "Specifies the nests used to patch inner classes. None is selected by default. Possible values are: ${Arrays.stream(NestsFlavour.values()).map(Object::toString).collect(Collectors.joining(", "))}", type: NestsFlavour, argName: "nests", defaultValue: "none");
 		cli_args._(longOpt: 'manifest-source', "Specifies the manifest source used to fetch the available versions, the mapping to semantic versions and the dependencies between versions. The Minecraft Launcher Meta (from Mojang) is selected by default. Possible values are: ${Arrays.stream(ManifestSource.values()).map(Object::toString).collect(Collectors.joining(", "))}", type: ManifestSource, argName: "manifestsrc", defaultValue: "mojang");
+		cli_args._(longOpt: 'artifact-store-path', args: 1, argName: 'path', type: Path,
+			'Changes the location of the artifact store, which contains metadata, temporary files and decompiled artifacts.');
 		cli_args._(longOpt: 'launch-demo', "Whether the client should launch in demo mode.");
 		cli_args.h(longOpt: 'help', 'Displays this help screen');
 		return cli_args;
@@ -137,6 +141,23 @@ class GitCraftLauncherCli {
 			usedSignatures != null ? usedSignatures : original.usedSignatures(),
 			usedNests != null ? usedNests : original.usedNests(),
 			original.enablePreening() || preeningEnabled
+		));
+
+		Path artifactStorePath = null;
+		if (cli_args_parsed.hasOption("artifact-store-path")) {
+			Path storePath = cli_args_parsed.'artifact-store-path';
+			artifactStorePath = storePath.toAbsolutePath().normalize();
+		}
+		Configuration.editConfiguration(TransientApplicationConfiguration.class, (original) -> new TransientApplicationConfiguration(
+			original.noRepo(),
+			original.overrideRepositoryPath(),
+			original.additionalFilesPath(),
+			original.refreshDecompilation(),
+			original.refreshOnlyVersion(),
+			original.refreshMinVersion(),
+			original.refreshMaxVersion(),
+			original.fabricIntermediaryRepoPath(),
+			artifactStorePath != null ? artifactStorePath : original.artifactStorePath()
 		));
 
 		// Launcher

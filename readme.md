@@ -31,7 +31,7 @@ By default, integrated assets (e.g. models), external assets (e.g. other languag
 This can be changed by adding the `--no-assets`, `--no-external-assets` and `--no-datapack` parameters.
 
 Artifacts are stored in the current working directory:
-- Metadata, mappings, assets and other temporary files go into `artifact-store`.
+- Metadata, mappings, assets and other temporary files go into `artifact-store` by default. Use `--artifact-store-path=<path>` to store them elsewhere.
 - The generated Git repository with MC's source code goes into `minecraft-repo`,  `minecraft-repo-<version>` or  `minecraft-repo-min-<version>`.
 - The decompiled code is stored in separate JARs inside the `artifact-store/decompiled` directory, to not write thousands of files directly onto the file system
 - To decompile versions not provided by Mojang directly, put the meta files into `extra-versions` and they will be picked up
@@ -55,6 +55,7 @@ Non-obfuscated versions are also accepted by `mojmap` and when this behavior is 
 Fallback mappings can be used with `--fallback-mappings`. For example `mojmap` could be used as a fallback to a `mojmap_parchment` mapping, as not every version of minecraft is available.
 
 If a specific target directory should be used, instead of the default generated repository name, use `--override-repo-target`.
+If the artifact store should live outside the current working directory, use `--artifact-store-path`.
 
 Powered by:
 - [Vineflower](https://github.com/Vineflower/vineflower)
@@ -79,6 +80,10 @@ Options:
       --additional-files-path
                              If presented files from the given path will be
                                copied into the generated repository.
+      --artifact-store-path=<path>
+                             Changes the location of the artifact store, which
+                               contains metadata, temporary files and
+                               decompiled artifacts.
       --create-stable-version-branches
                              Creates a separate branch for each stable linear
                                version. This may be useful for quickly

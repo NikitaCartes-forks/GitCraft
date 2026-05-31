@@ -17,11 +17,17 @@ public class LibraryPaths {
 	public static Path TMP_DIR = null;
 
 	public static void init(Path currentWorkingDirectory) throws IOException {
+		init(currentWorkingDirectory, null);
+	}
+
+	public static void init(Path currentWorkingDirectory, Path artifactStorePath) throws IOException {
 		if (CURRENT_WORKING_DIRECTORY != null) {
 			return;
 		}
 		CURRENT_WORKING_DIRECTORY = currentWorkingDirectory;
-		MAIN_ARTIFACT_STORE = CURRENT_WORKING_DIRECTORY.resolve("artifact-store");
+		MAIN_ARTIFACT_STORE = artifactStorePath == null ?
+			CURRENT_WORKING_DIRECTORY.resolve("artifact-store") :
+			(artifactStorePath.isAbsolute() ? artifactStorePath : CURRENT_WORKING_DIRECTORY.resolve(artifactStorePath)).normalize();
 		MAVEN_CACHE = MAIN_ARTIFACT_STORE.resolve("maven-cache.json");
 		TMP_DIR = CURRENT_WORKING_DIRECTORY.resolve("tmp");
 		Files.createDirectories(MAIN_ARTIFACT_STORE);

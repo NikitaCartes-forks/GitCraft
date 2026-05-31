@@ -17,6 +17,7 @@ import java.util.Map;
  * @param refreshOnlyVersion Whether a specific versions should be refreshed
  * @param refreshMinVersion A min version that should be refreshed (all versions greater than this version are also refreshed)
  * @param refreshMaxVersion A max version that should be refreshed (all versions less than this version are also refreshed)
+ * @param artifactStorePath Path to an artifact store directory that should be used instead of ./artifact-store
  */
 public record TransientApplicationConfiguration(boolean noRepo,
 												Path overrideRepositoryPath,
@@ -25,14 +26,18 @@ public record TransientApplicationConfiguration(boolean noRepo,
 												String[] refreshOnlyVersion,
 												String refreshMinVersion,
 												String refreshMaxVersion,
-												Path fabricIntermediaryRepoPath)
+												Path fabricIntermediaryRepoPath,
+												Path artifactStorePath)
 	implements Configuration {
+
+	private static final String ARTIFACT_STORE_PATH_OPTION = "--artifact-store-path";
 
 	public static final TransientApplicationConfiguration DEFAULT = new TransientApplicationConfiguration(
 		false,
 		null,
 		null,
 		false,
+		null,
 		null,
 		null,
 		null,
@@ -56,6 +61,9 @@ public record TransientApplicationConfiguration(boolean noRepo,
 		}
 		if (this.fabricIntermediaryRepoPath() != null) {
 			info.add(String.format("Fabric intermediary local repo path: %s", this.fabricIntermediaryRepoPath()));
+		}
+		if (this.artifactStorePath() != null) {
+			info.add(String.format("Artifact store path override: %s", this.artifactStorePath()));
 		}
 		if (this.refreshDecompilation() && !this.isRefreshOnlyVersion() && !this.isRefreshMinVersion() && !this.isRefreshMaxVersion()) {
 			info.add(String.format("All / specified version(s) will be: %s", this.refreshDecompilation() ? "deleted and decompiled again" : "reused if existing"));
@@ -87,6 +95,36 @@ public record TransientApplicationConfiguration(boolean noRepo,
 
 	public boolean isFabricIntermediaryRepoPath() {
 		return this.fabricIntermediaryRepoPath() != null;
+	}
+
+	public static Path findArtifactStorePathOverride(String[] args) {
+		if (args == null) {
+			return null;
+		}
+		for (int i = 0; i < args.length; ++i) {
+			String arg = args[i];
+			if (arg == null) {
+				continue;
+			}
+			if (arg.startsWith(ARTIFACT_STORE_PATH_OPTION + "=")) {
+				String value = arg.substring((ARTIFACT_STORE_PATH_OPTION + "=").length());
+				if (!value.isBlank()) {
+					return Path.of(value).toAbsolutePath().normalize();
+				}
+				return null;
+			}
+			if (ARTIFACT_STORE_PATH_OPTION.equals(arg)) {
+				if (i + 1 >= args.length) {
+					return null;
+				}
+				String value = args[i + 1];
+				if (value == null || value.isBlank() || value.startsWith("--")) {
+					return null;
+				}
+				return Path.of(value).toAbsolutePath().normalize();
+			}
+		}
+		return null;
 	}
 
 	public static TransientApplicationConfiguration deserialize(Map<String, JsonElement> map) {

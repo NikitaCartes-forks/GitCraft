@@ -12,12 +12,11 @@ import com.github.winplay02.gitcraft.util.RemoteHelper;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.logging.ConsoleHandler;
-import java.util.logging.Formatter;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -32,6 +31,10 @@ public class Library {
 	public static Logger LIBRARY_LOGGER = null;
 
 	public static void initialize() {
+		initialize(null);
+	}
+
+	public static void initialize(Path artifactStorePath) {
 		LIBRARY_LOGGER = Logger.getLogger("GitCraft/Library");
 		LIBRARY_LOGGER.setLevel(Level.ALL);
 		LIBRARY_LOGGER.setUseParentHandlers(false);
@@ -75,7 +78,7 @@ public class Library {
 			LIBRARY_LOGGER.addHandler(consoleHandler);
 		}
 		try {
-			LibraryPaths.init(LibraryPaths.lookupCurrentWorkingDirectory());
+			LibraryPaths.init(LibraryPaths.lookupCurrentWorkingDirectory(), artifactStorePath);
 			// Maven startup
 			RemoteHelper.loadMavenCache();
 		} catch (IOException e) {

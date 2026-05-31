@@ -70,6 +70,8 @@ class GitCraftCli {
 		cli_args._(longOpt: 'only-unobfuscated', 'Only decompiles versions which are not obfuscated.');
 		cli_args._(longOpt: 'override-repo-target', args: 1, argName: 'path', type: Path,
 			'Changes the location of the target repository, as repo names may get quite long and unintuitive. If not used carefully, this can lead to repositories with unwanted mixed mappings or straight up refuse to work as some versions in the target repository may be missing.');
+		cli_args._(longOpt: 'artifact-store-path', args: 1, argName: 'path', type: Path,
+			'Changes the location of the artifact store, which contains metadata, temporary files and decompiled artifacts.');
 		cli_args._(longOpt: 'create-version-branches', 'Creates a separate branch for each version, including linear versions. This may be useful for quickly switching between multiple versions.')
 		cli_args._(longOpt: 'create-stable-version-branches', 'Creates a separate branch for each stable linear version. This may be useful for quickly switching between multiple versions.')
 		cli_args._(longOpt: 'sort-json', 'Sorts JSON objects contained in JSON files (e.g. models, language files, ...) in natural order. This is disabled by default as it modifies original data.')
@@ -243,6 +245,11 @@ class GitCraftCli {
 			Path additionalPath = cli_args_parsed.'additional-files-path';
 			additionalFilesPath = additionalPath.toAbsolutePath();
 		}
+		Path artifactStorePath = null;
+		if (cli_args_parsed.hasOption("artifact-store-path")) {
+			Path storePath = cli_args_parsed.'artifact-store-path';
+			artifactStorePath = storePath.toAbsolutePath().normalize();
+		}
 		Path fabricIntermediaryRepoPath = null;
 		if (cli_args_parsed.hasOption("fabric-intermediary-repo")) {
 			Path repoPath = cli_args_parsed.'fabric-intermediary-repo';
@@ -272,7 +279,8 @@ class GitCraftCli {
 			refreshOnlyVersion,
 			refreshMinVersion,
 			refreshMaxVersion,
-			fabricIntermediaryRepoPath
+			fabricIntermediaryRepoPath,
+			artifactStorePath != null ? artifactStorePath : original.artifactStorePath()
 		));
 		return true;
 	}
