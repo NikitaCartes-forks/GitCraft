@@ -458,13 +458,16 @@ public class MojangLauncherMetadataProvider extends BaseMetadataProvider<MojangL
 			case "25w14craftmine" -> {
 				return List.of("1.21.5");
 			}
+			case "26w14a" -> {
+				return List.of("26.1.1");
+			}
 			default -> {
 				return null;
 			}
 		}
 	}
 
-	private static final Pattern NORMAL_SNAPSHOT_PATTERN = Pattern.compile("(^\\d\\dw\\d\\d[a-z]$)|(^(1|\\d\\d).\\d+(.\\d+)?(-(pre-?|rc-?|snapshot-)\\d+| Pre-Release \\d+)?$)");
+	private static final Pattern NORMAL_SNAPSHOT_PATTERN = Pattern.compile("(^\\d\\dw\\d\\d[a-z]$)|(^(1|\\d\\d).\\d+(.\\d+)?(-((pre|rc|snapshot)-?)\\d+| Pre-Release \\d+)?$)");
 
 	protected Pattern getNormalSnapshotPattern() {
 		return NORMAL_SNAPSHOT_PATTERN;
@@ -476,7 +479,8 @@ public class MojangLauncherMetadataProvider extends BaseMetadataProvider<MojangL
 			// filter out april fools snapshots and experimental versions,
 			// which often have typical ids that do not match normal snapshots
 			|| (mcVersion.isSnapshotOrPending() && !this.getNormalSnapshotPattern().matcher(mcVersion.launcherFriendlyVersionName()).matches())
-			// Exclude april fools that looks like regular snapshot
+			// Exclude april fools that look like regular snapshot
+			|| Objects.equals(mcVersion.launcherFriendlyVersionName(), "26w14a") // April Fools '26
 			|| Objects.equals(mcVersion.launcherFriendlyVersionName(), "15w14a");
 	}
 }
