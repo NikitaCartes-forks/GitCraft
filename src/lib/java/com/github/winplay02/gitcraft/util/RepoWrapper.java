@@ -88,6 +88,19 @@ public class RepoWrapper implements Closeable {
 		return target_ref != null;
 	}
 
+	public boolean doesTagExist(String tagName) throws IOException {
+		return this.git.getRepository().getRefDatabase().exactRef(Constants.R_TAGS + tagName) != null;
+	}
+
+	public boolean doesTagExistNoExcept(String tagName) {
+		try {
+			return this.doesTagExist(tagName);
+		} catch (IOException e) {
+			MiscHelper.panicBecause(e, "Could not lookup tag in repository");
+			return false;
+		}
+	}
+
 	public void checkoutNewOrphanBranch(String target_branch) throws GitAPIException {
 		this.git.checkout().setOrphan(true).setName(target_branch).call();
 	}

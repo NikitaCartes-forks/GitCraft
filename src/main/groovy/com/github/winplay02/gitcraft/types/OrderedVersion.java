@@ -265,6 +265,10 @@ public record OrderedVersion(
 		return this.launcherFriendlyVersionName() + "\n\nSemVer: " + this.semanticVersion();
 	}
 
+	public String gitTag() {
+		return this.launcherFriendlyVersionName().replace(" ", "_");
+	}
+
 	@Override
 	public int compareTo(OrderedVersion o) {
 		SemanticVersion thisVersion = null;

@@ -158,7 +158,7 @@ public final class GitCraftPipelineDescription {
 				GitCraftStep.COMMIT, StepDependencies.merge(StepDependencies.ofIntraVersion(Set.of(GitCraftStep.FETCH_ARTIFACTS, GitCraftStep.DECOMPILE_JARS), Set.of(GitCraftStep.UNPACK_ARTIFACTS, GitCraftStep.FETCH_ASSETS, GitCraftStep.DATAGEN)), StepDependencies.ofInterVersion(GitCraftStep.COMMIT))
 			)
 		),
-		(graph, versionCtx) -> versionCtx.repository() != null && versionCtx.repository().existsRevWithCommitMessageNoExcept(versionCtx.targetVersion().toCommitMessage()),
+		(graph, versionCtx) -> versionCtx.repository() != null && versionCtx.repository().doesTagExistNoExcept(versionCtx.targetVersion().gitTag()),
 		GitCraftPipelineDescription::getContext,
 		GitCraftPipelineDescription::getConfig
 	);

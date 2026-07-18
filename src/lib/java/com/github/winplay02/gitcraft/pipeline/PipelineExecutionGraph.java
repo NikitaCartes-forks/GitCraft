@@ -2,14 +2,12 @@ package com.github.winplay02.gitcraft.pipeline;
 
 import com.github.winplay02.gitcraft.graph.AbstractVersion;
 import com.github.winplay02.gitcraft.graph.AbstractVersionGraph;
-import com.github.winplay02.gitcraft.util.MiscHelper;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public record PipelineExecutionGraph<T extends AbstractVersion<T>, C extends IStepContext<C, T>, D extends IStepConfig>
 	(Set<IPipeline.TupleVersionStep<T, C, D>> stepVersionSubsetVertices, Map<IPipeline.TupleVersionStep<T, C, D>, Set<IPipeline.TupleVersionStep<T, C, D>>> stepVersionSubsetEdges) {
@@ -41,9 +39,5 @@ public record PipelineExecutionGraph<T extends AbstractVersion<T>, C extends ISt
 		}
 		// TODO validate execution graph
 		return new PipelineExecutionGraph<>(Collections.unmodifiableSet(stepVersionSubsetVertices), Collections.unmodifiableMap(stepVersionSubsetEdges));
-	}
-
-	protected Set<IPipeline.TupleVersionStep<T, C, D>> nextTuples(Set<IPipeline.TupleVersionStep<T, C, D>> completedSubset) {
-		return stepVersionSubsetEdges.entrySet().stream().filter(entry -> !completedSubset.contains(entry.getKey())).filter(entry -> MiscHelper.calculateAsymmetricSetDifference(entry.getValue(), completedSubset).isEmpty()).map(java.util.Map.Entry::getKey).collect(Collectors.toUnmodifiableSet());
 	}
 }

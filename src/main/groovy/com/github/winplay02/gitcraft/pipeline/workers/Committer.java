@@ -56,6 +56,10 @@ public record Committer(GitCraftStepConfig config) implements GitCraftStepWorker
 		}
 		// Check validity of prepared args
 		Objects.requireNonNull(context.repository());
+		String versionTag = context.targetVersion().gitTag();
+		if (!context.repository().isHeadless() && context.repository().doesTagExist(versionTag)) {
+			return StepOutput.ofEmptyResultSet(StepStatus.UP_TO_DATE);
+		}
 		// Clean First
 		MiscHelper.executeTimedStep("Clearing working directory...", context.repository()::clearWorkingTree);
 		// Switch Branch
@@ -358,7 +362,7 @@ public record Committer(GitCraftStepConfig config) implements GitCraftStepWorker
 		TimeZone versionTimeZone = TimeZone.getTimeZone(Objects.requireNonNull(mcVersion.timestamp()).getZone());
 		repo.createCommitUsingAllChanges(GitCraft.getRepositoryConfiguration().gitUser(), GitCraft.getRepositoryConfiguration().gitMail(), versionDate, versionTimeZone, mcVersion.toCommitMessage());
 		PersonIdent tagger = new PersonIdent(GitCraft.getRepositoryConfiguration().gitUser(), GitCraft.getRepositoryConfiguration().gitMail(), versionDate.toInstant(), versionTimeZone.toZoneId());
-		repo.getGit().tag().setMessage(mcVersion.toCommitMessage()).setName(mcVersion.launcherFriendlyVersionName().replace(" ", "_")).setTagger(tagger).setSigned(false).call();
+		repo.getGit().tag().setMessage(mcVersion.toCommitMessage()).setName(mcVersion.gitTag()).setTagger(tagger).setSigned(false).call();
 	}
 
 	private void createBranchFromCurrentCommit(OrderedVersion mcVersion, RepoWrapper repo) throws GitAPIException, IOException {

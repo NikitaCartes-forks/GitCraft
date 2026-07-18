@@ -5,11 +5,13 @@ import com.github.winplay02.gitcraft.graph.AbstractVersionGraph;
 import com.github.winplay02.gitcraft.util.MiscHelper;
 import com.github.winplay02.gitcraft.util.RepoWrapper;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Predicate;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public record InFlightExecutionPlan<T extends AbstractVersion<T>, C extends IStepContext<C, T>, D extends IStepConfig>(PipelineExecutionGraph<T, C, D> executionGraph,
 																			Set<IPipeline.TupleVersionStep<T, C, D>> completedSubset,
@@ -18,11 +20,24 @@ public record InFlightExecutionPlan<T extends AbstractVersion<T>, C extends ISte
 																			Map<IPipeline.TupleVersionStep<T, C, D>, Exception> failedTasks,
 																			Map<T, C> versionedContexts,
 																			Map<T, D> versionedConfigs,
+																			Map<IPipeline.TupleVersionStep<T, C, D>, Set<IPipeline.TupleVersionStep<T, C, D>>> dependents,
+																			Map<IPipeline.TupleVersionStep<T, C, D>, AtomicInteger> remainingDeps,
+																			Set<IPipeline.TupleVersionStep<T, C, D>> deferredTasks,
 																			Object executionLock,
 																			Object conditionalVar) {
 
 	public static <T extends AbstractVersion<T>, C extends IStepContext<C, T>, D extends IStepConfig> InFlightExecutionPlan<T, C, D> create(PipelineDescription<T, C, D> description, AbstractVersionGraph<T> versionGraph) {
-		return new InFlightExecutionPlan<>(PipelineExecutionGraph.populate(description, versionGraph), ConcurrentHashMap.newKeySet(), ConcurrentHashMap.newKeySet(), ConcurrentHashMap.newKeySet(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new Object(), new Object());
+		PipelineExecutionGraph<T, C, D> executionGraph = PipelineExecutionGraph.populate(description, versionGraph);
+		// Build reverse edges (dependents) and in-degree counters once
+		Map<IPipeline.TupleVersionStep<T, C, D>, Set<IPipeline.TupleVersionStep<T, C, D>>> dependents = new HashMap<>();
+		Map<IPipeline.TupleVersionStep<T, C, D>, AtomicInteger> remainingDeps = new HashMap<>();
+		for (Map.Entry<IPipeline.TupleVersionStep<T, C, D>, Set<IPipeline.TupleVersionStep<T, C, D>>> entry : executionGraph.stepVersionSubsetEdges().entrySet()) {
+			remainingDeps.put(entry.getKey(), new AtomicInteger(entry.getValue().size()));
+			for (IPipeline.TupleVersionStep<T, C, D> dependency : entry.getValue()) {
+				dependents.computeIfAbsent(dependency, __ -> new HashSet<>()).add(entry.getKey());
+			}
+		}
+		return new InFlightExecutionPlan<>(executionGraph, ConcurrentHashMap.newKeySet(), ConcurrentHashMap.newKeySet(), ConcurrentHashMap.newKeySet(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), dependents, remainingDeps, ConcurrentHashMap.newKeySet(), new Object(), new Object());
 	}
 
 	private void runSingleTask(ExecutorService executor, IPipeline.TupleVersionStep<T, C, D> task, IPipeline<T, C, D> pipeline, RepoWrapper repository, AbstractVersionGraph<T> versionGraph) {
@@ -36,9 +51,12 @@ public record InFlightExecutionPlan<T extends AbstractVersion<T>, C extends ISte
 					return;
 				}
 				if (task.step().getParallelismPolicy().isRestrictedToSequential() && activeSteps.contains(task.step())) {
+					// slot busy; remember to retry once the step's active task completes
+					deferredTasks.add(task);
 					return;
 				}
 
+				deferredTasks.remove(task);
 				activeSteps.add(task.step());
 				executingSubset.add(task);
 			}
@@ -83,7 +101,7 @@ public record InFlightExecutionPlan<T extends AbstractVersion<T>, C extends ISte
 				signalUpdate();
 
 				if (storedException == null) {
-					scanForTasks(executor, pipeline, repository, versionGraph);
+					onTaskCompleted(executor, task, pipeline, repository, versionGraph);
 				} else {
 					executor.shutdown();
 				}
@@ -91,15 +109,30 @@ public record InFlightExecutionPlan<T extends AbstractVersion<T>, C extends ISte
 		});
 	}
 
-	private void scanForTasks(ExecutorService executor, IPipeline<T, C, D> pipeline, RepoWrapper repository, AbstractVersionGraph<T> versionGraph) {
-		// These are approximations of the set of tasks to execute; they should be equal or greater than the actual set; duplicate tasks get discarded later
-		for (IPipeline.TupleVersionStep<T, C, D> task : this.executionGraph.nextTuples(this.completedSubset)) {
-			this.runSingleTask(executor, task, pipeline, repository, versionGraph);
+	private void onTaskCompleted(ExecutorService executor, IPipeline.TupleVersionStep<T, C, D> completedTask, IPipeline<T, C, D> pipeline, RepoWrapper repository, AbstractVersionGraph<T> versionGraph) {
+		// Unblock direct dependents; schedule the ones whose last dependency just completed
+		for (IPipeline.TupleVersionStep<T, C, D> dependent : this.dependents.getOrDefault(completedTask, Set.of())) {
+			if (this.remainingDeps.get(dependent).decrementAndGet() == 0) {
+				this.runSingleTask(executor, dependent, pipeline, repository, versionGraph);
+			}
+		}
+		// A sequential step slot may have freed up: retry tasks of the same step that were deferred
+		if (completedTask.step().getParallelismPolicy().isRestrictedToSequential() && !this.deferredTasks.isEmpty()) {
+			for (IPipeline.TupleVersionStep<T, C, D> deferred : this.deferredTasks) {
+				if (deferred.step().equals(completedTask.step())) {
+					this.runSingleTask(executor, deferred, pipeline, repository, versionGraph);
+				}
+			}
 		}
 	}
 
 	public void run(ExecutorService executor, IPipeline<T, C, D> pipeline, RepoWrapper repository, AbstractVersionGraph<T> versionGraph) {
-		scanForTasks(executor, pipeline, repository, versionGraph);
+		// Schedule all tasks that have no dependencies to begin with
+		for (Map.Entry<IPipeline.TupleVersionStep<T, C, D>, AtomicInteger> entry : this.remainingDeps.entrySet()) {
+			if (entry.getValue().get() == 0) {
+				this.runSingleTask(executor, entry.getKey(), pipeline, repository, versionGraph);
+			}
+		}
 		await();
 	}
 
