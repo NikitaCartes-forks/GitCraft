@@ -212,7 +212,24 @@ public class RepoWrapper implements Closeable {
 	}
 
 	public void gc() throws GitAPIException {
-		this.git.gc().call();
+		this.git.getRepository().getObjectDatabase().close();
+		try {
+			Process process = new ProcessBuilder("git", "gc")
+				.directory(this.root_path.toFile())
+				.redirectErrorStream(true)
+				.start();
+			String output = new String(process.getInputStream().readAllBytes());
+			int exit = process.waitFor();
+			if (exit != 0) {
+				MiscHelper.panic("Native 'git gc' failed (exit %d):%n%s", exit, output);
+			}
+		} catch (IOException gitCliUnavailable) {
+			MiscHelper.println("Native git unavailable, falling back to JGit gc: %s", gitCliUnavailable.getMessage());
+			this.git.gc().call();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new IllegalStateException("Interrupted while waiting for native git gc", e);
+		}
 	}
 
 	public static final class CommitMsgFilter extends RevFilter {
