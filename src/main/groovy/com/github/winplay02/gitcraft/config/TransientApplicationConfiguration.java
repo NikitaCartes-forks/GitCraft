@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public record TransientApplicationConfiguration(boolean noRepo,
 												String[] refreshOnlyVersion,
 												String refreshMinVersion,
 												String refreshMaxVersion,
-												Path fabricIntermediaryRepoPath,
+												Path[] fabricIntermediaryRepoPaths,
 												Path artifactStorePath)
 	implements Configuration {
 
@@ -59,8 +60,8 @@ public record TransientApplicationConfiguration(boolean noRepo,
 		if (this.additionalFilesPath() != null) {
 			info.add(String.format("Additional files path. If present files from that directory will be put in resulting repo. Target: %s", this.additionalFilesPath()));
 		}
-		if (this.fabricIntermediaryRepoPath() != null) {
-			info.add(String.format("Fabric intermediary local repo path: %s", this.fabricIntermediaryRepoPath()));
+		if (this.fabricIntermediaryRepoPaths() != null) {
+			info.add(String.format("Fabric intermediary local repo paths: %s", Arrays.toString(this.fabricIntermediaryRepoPaths())));
 		}
 		if (this.artifactStorePath() != null) {
 			info.add(String.format("Artifact store path override: %s", this.artifactStorePath()));
@@ -94,7 +95,7 @@ public record TransientApplicationConfiguration(boolean noRepo,
 	}
 
 	public boolean isFabricIntermediaryRepoPath() {
-		return this.fabricIntermediaryRepoPath() != null;
+		return this.fabricIntermediaryRepoPaths() != null;
 	}
 
 	public static Path findArtifactStorePathOverride(String[] args) {

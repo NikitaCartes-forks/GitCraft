@@ -51,6 +51,7 @@ The combination of mojmaps and yarn mappings `mojmap_yarn` (like used in Paper) 
 For legacy versions, there are {`calamus_intermediary`, `feather`} mappings from OrnitheMC.
 For just comparing changes without using mappings, `identity_unmapped` can be used.
 Non-obfuscated versions are also accepted by `mojmap` and when this behavior is not desired, `mojmap_strict` can be used.
+For non-obfuscated versions, `yarn` and `fabric_intermediary` use the mappings of [RelativityMC](https://github.com/RelativityMC), which continue yarn and intermediary after Fabric stopped their releases.
 
 Fallback mappings can be used with `--fallback-mappings`. For example `mojmap` could be used as a fallback to a `mojmap_parchment` mapping, as not every version of minecraft is available.
 
@@ -67,6 +68,7 @@ Powered by:
 - [Loom](https://github.com/FabricMC/fabric-loom)
 - [Yarn](https://github.com/FabricMC/yarn)
 - [Fabric Intermediary Mappings](https://github.com/FabricMC/intermediary)
+- [Modern Yarn](https://github.com/RelativityMC/yarn) and [its intermediary](https://github.com/RelativityMC/intermediary)
 - [Parchment](https://github.com/ParchmentMC/Parchment)
 - [Skyrising Minecraft Version Manifest Collection](https://skyrising.github.io/mc-versions)
 - {Libraries, Tools, Mappings} of [OrnitheMC](https://github.com/OrnitheMC)
@@ -102,10 +104,14 @@ Options:
                                The exclusion info will be added to the
                                repository name. The normal repository will not
                                be touched.
-      --fabric-intermediary-repo=<path>
-                             Path to a local FabricMC/intermediary git checkout.
-                               If provided, intermediary mappings are read from
-                               this directory instead of the GitHub API.
+      --fabric-intermediary-repo[=<path>[,<path>]...]
+                             Paths to local FabricMC/intermediary or
+                               RelativityMC/intermediary git checkouts (in
+                               given order). If provided, intermediary mappings
+                               are read from the first checkout that contains
+                               the version, instead of the GitHub API.
+                               Non-obfuscated versions which no checkout
+                               contains are still read from maven.
       --fallback-mappings[=<mapping>[,<mapping>]...]
                              If the primary mapping fails, these mappings are
                                tried (in given order). By default none is tried
@@ -270,6 +276,11 @@ meta, put the JSON files of these versions (e.g. 1_16_combat-0.json) into the
   - Some combat snapshots are located in a non-standard-path (on maven.fabricmc.net and on meta.fabricmc.net). Affected versions: `1.15_combat-6`, `1.16_combat-0`
 - Version `1.16_combat-1`, `1.16_combat-2`, `1.16_combat-4`, `1.16_combat-5`, `1.16_combat-6` do not exist at all
 - Javadoc comments and constant unpicking is supported
+- Fabric stopped their releases at `26.1-snapshot-1`, the first version without obfuscation
+  - From that version on, yarn and intermediary come from RelativityMC (`org.relativitymc:modern-yarn` and `org.relativitymc:intermediary`)
+  - RelativityMC publishes no meta service, thus GitCraft reads the latest build from `maven-metadata.xml`
+  - `--fabric-intermediary-repo` also accepts a checkout of `RelativityMC/intermediary`, as both repositories use the same layout. Give both checkouts as a comma-separated list to read every version from disk: `--fabric-intermediary-repo=/path/to/intermediary,/path/to/modern-intermediary`
+  - Of the experimental unobfuscated versions, RelativityMC maps only `1.21.11_unobfuscated`
 
 ## Unpick
 - all versions of the (fabric) unpick format are supported

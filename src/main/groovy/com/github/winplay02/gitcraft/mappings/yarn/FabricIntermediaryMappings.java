@@ -23,9 +23,12 @@ import net.fabricmc.mappingio.tree.MemoryMappingTree;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 
 public class FabricIntermediaryMappings extends Mapping {
 	@Override
@@ -45,9 +48,11 @@ public class FabricIntermediaryMappings extends Mapping {
 
 	@Override
 	public boolean doMappingsExist(OrderedVersion mcVersion) {
-		if (GitCraftQuirks.intermediaryMissingVersions.contains(mcVersion.launcherFriendlyVersionName())
-		   || mcVersion.isNotObfuscated()) { // exclude missing and non-obfuscated versions
+		if (GitCraftQuirks.intermediaryMissingVersions.contains(mcVersion.launcherFriendlyVersionName())) { // exclude missing versions
 			return false;
+		}
+		if (mcVersion.isNotObfuscated()) { // fabric does not map non-obfuscated versions, modern intermediary continues them
+			return getLocalMappingsFile(mcVersion) != null || ModernYarn.hasIntermediary(mcVersion);
 		}
 		return mcVersion.compareTo(GitCraft.getApplicationConfiguration().manifestSource().getMetadataProvider().getVersionByVersionID(GitCraftQuirks.FABRIC_INTERMEDIARY_MAPPINGS_START_VERSION_ID)) >= 0;
 	}
@@ -68,6 +73,27 @@ public class FabricIntermediaryMappings extends Mapping {
 		return GitCraftQuirks.yarnInconsistentVersionNaming.getOrDefault(version, version);
 	}
 
+	/**
+	 * The local repos may be checkouts of any intermediary repository, as they all use the same layout.
+	 *
+	 * @return the mapping file of the given version inside the first local intermediary repo containing it, or null
+	 * if no repo is configured or no repo contains the version
+	 */
+	private static Path getLocalMappingsFile(OrderedVersion mcVersion) {
+		Path[] repoPaths = GitCraftApplication.getTransientApplicationConfiguration().fabricIntermediaryRepoPaths();
+		if (repoPaths == null) {
+			return null;
+		}
+		String quirkVersion = mappingsIntermediaryPathQuirkVersion(mcVersion.launcherFriendlyVersionName());
+		for (Path repoPath : repoPaths) {
+			Path localMappingsFile = repoPath.resolve("mappings").resolve(quirkVersion + ".tiny");
+			if (Files.exists(localMappingsFile)) {
+				return localMappingsFile;
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public StepStatus provideMappings(IStepContext<?, OrderedVersion> versionContext, MinecraftJar minecraftJar) throws IOException {
 		// fabric intermediary is provided for the merged jar
@@ -79,17 +105,18 @@ public class FabricIntermediaryMappings extends Mapping {
 			return StepStatus.UP_TO_DATE;
 		}
 		Files.deleteIfExists(mappingsFile);
+		// a local repo of modern intermediary is used if it contains the version, otherwise maven provides it
+		if (versionContext.targetVersion().isNotObfuscated() && getLocalMappingsFile(versionContext.targetVersion()) == null) {
+			return StepStatus.merge(provideModernMappings(versionContext, mappingsFile), StepStatus.SUCCESS);
+		}
 		Path mappingsV1 = getMappingsPathInternalV1(versionContext.targetVersion());
 		String quirkVersion = mappingsIntermediaryPathQuirkVersion(versionContext.targetVersion().launcherFriendlyVersionName());
-		Path fabricIntermediaryRepoPath = GitCraftApplication.getTransientApplicationConfiguration().fabricIntermediaryRepoPath();
+		Path[] fabricIntermediaryRepoPaths = GitCraftApplication.getTransientApplicationConfiguration().fabricIntermediaryRepoPaths();
 		StepStatus downloadStatus;
-		if (fabricIntermediaryRepoPath != null) {
-			if (!Files.isDirectory(fabricIntermediaryRepoPath)) {
-				throw new IOException(String.format("Fabric intermediary local repo path is not a valid directory: %s", fabricIntermediaryRepoPath));
-			}
-			Path localMappingFile = fabricIntermediaryRepoPath.resolve("mappings").resolve(quirkVersion + ".tiny");
-			if (!Files.exists(localMappingFile)) {
-				throw new IOException(String.format("Fabric intermediary mapping file not found for version '%s' at: %s", quirkVersion, localMappingFile));
+		if (fabricIntermediaryRepoPaths != null) {
+			Path localMappingFile = getLocalMappingsFile(versionContext.targetVersion());
+			if (localMappingFile == null) {
+				throw new IOException(String.format("Fabric intermediary mapping file not found for version '%s' in any of: %s", quirkVersion, Arrays.toString(fabricIntermediaryRepoPaths)));
 			}
 			Files.copy(localMappingFile, mappingsV1, StandardCopyOption.REPLACE_EXISTING);
 			downloadStatus = StepStatus.SUCCESS;
@@ -104,6 +131,19 @@ public class FabricIntermediaryMappings extends Mapping {
 			mappingTree.accept(writer);
 		}
 		return StepStatus.merge(downloadStatus, StepStatus.SUCCESS);
+	}
+
+	/**
+	 * Modern intermediary is published to maven in tiny-v2 format, so it only needs to be extracted.
+	 */
+	private StepStatus provideModernMappings(IStepContext<?, OrderedVersion> versionContext, Path mappingsFile) throws IOException {
+		OrderedVersion mcVersion = versionContext.targetVersion();
+		Path mappingsFileJar = GitCraftPipelineFilesystemRoot.getMappings().apply(GitCraftPipelineFilesystemStorage.DEFAULT.get().rootFilesystem()).resolve(mcVersion.launcherFriendlyVersionName() + "-intermediary-v2.jar");
+		StepStatus downloadStatus = RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryMaven(versionContext.executorService(), ModernYarn.makeIntermediaryV2JarUrl(mcVersion), new FileSystemNetworkManager.LocalFileInfo(mappingsFileJar, null, null, "modern intermediary mapping", mcVersion.launcherFriendlyVersionName()));
+		try (FileSystem fs = FileSystems.newFileSystem(mappingsFileJar)) {
+			Files.copy(fs.getPath("mappings", "mappings.tiny"), mappingsFile, StandardCopyOption.REPLACE_EXISTING);
+		}
+		return downloadStatus;
 	}
 
 	protected Path getMappingsPathInternalV1(OrderedVersion mcVersion) {

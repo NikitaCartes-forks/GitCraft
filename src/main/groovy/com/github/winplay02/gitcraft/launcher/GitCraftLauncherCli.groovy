@@ -156,7 +156,7 @@ class GitCraftLauncherCli {
 			original.refreshOnlyVersion(),
 			original.refreshMinVersion(),
 			original.refreshMaxVersion(),
-			original.fabricIntermediaryRepoPath(),
+			original.fabricIntermediaryRepoPaths(),
 			artifactStorePath != null ? artifactStorePath : original.artifactStorePath()
 		));
 

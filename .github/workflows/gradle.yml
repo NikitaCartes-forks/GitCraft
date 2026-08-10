@@ -1,10 +1,6 @@
 name: GitCraft-Next CI
 
-on:
-  push:
-    branches: [ "master", "experimental" ]
-  pull_request:
-    branches: [ "master", "experimental" ]
+on: [ pull_request, push ]
 
 permissions:
   contents: read

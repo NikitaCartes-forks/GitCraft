@@ -20,6 +20,7 @@ public class GitCraft extends GitCraftApplication {
 
 	public static final String FABRIC_MAVEN = "https://maven.fabricmc.net/";
 	public static final String ORNITHE_MAVEN = "https://maven.ornithemc.net/releases/";
+	public static final String RELATIVITYMC_MAVEN = "https://repo.codemc.io/repository/relativitymc/";
 
 	public static void main(String... args) throws Exception {
 		new GitCraft().mainEntrypoint(args);

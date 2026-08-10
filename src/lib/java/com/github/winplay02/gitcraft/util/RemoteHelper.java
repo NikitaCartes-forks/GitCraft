@@ -7,8 +7,10 @@ import com.github.winplay02.gitcraft.manifest.metadata.GithubRepositoryBlobConte
 import com.github.winplay02.gitcraft.pipeline.StepStatus;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.net.IDN;
@@ -18,6 +20,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -119,5 +123,15 @@ public class RemoteHelper {
 	public static String readMavenLatestRelease(String mavenMetadata) throws Exception {
 		Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadata);
 		return XPathFactory.newInstance().newXPath().compile("/metadata/versioning/release").evaluate(document);
+	}
+
+	public static List<String> readMavenVersions(String mavenMetadata) throws Exception {
+		Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadata);
+		NodeList versionNodes = (NodeList) XPathFactory.newInstance().newXPath().compile("/metadata/versioning/versions/version").evaluate(document, XPathConstants.NODESET);
+		List<String> versions = new ArrayList<>(versionNodes.getLength());
+		for (int index = 0; index < versionNodes.getLength(); ++index) {
+			versions.add(versionNodes.item(index).getTextContent());
+		}
+		return versions;
 	}
 }

@@ -2,6 +2,7 @@ package com.github.winplay02.gitcraft;
 
 import com.github.winplay02.gitcraft.config.ApplicationConfiguration;
 import com.github.winplay02.gitcraft.config.Configuration;
+import com.github.winplay02.gitcraft.config.TransientApplicationConfiguration;
 import com.github.winplay02.gitcraft.exceptions.ExceptionsFlavour;
 import com.github.winplay02.gitcraft.manifest.ManifestSource;
 import com.github.winplay02.gitcraft.manifest.skyrising.SkyrisingMetadataProvider;
@@ -175,6 +176,9 @@ public class GitCraftTest {
 			assertFalse(Files.exists(mappingsPath));
 			assertTrue(MappingFlavour.FABRIC_INTERMEDIARY.exists(versionGraph.getMinecraftVersionBySemanticVersion("1.14-alpha.18.43.b")));
 			assertFalse(MappingFlavour.FABRIC_INTERMEDIARY.exists(versionGraph.getMinecraftVersionBySemanticVersion("1.14-alpha.18.43.a")));
+			// Non-obfuscated versions, mapped by modern intermediary
+			assertTrue(MappingFlavour.FABRIC_INTERMEDIARY.exists(versionGraph.getMinecraftVersionByName("26.1")));
+			assertFalse(MappingFlavour.FABRIC_INTERMEDIARY.exists(versionGraph.getMinecraftVersionByName("25w45a_unobfuscated")));
 			IStepContext.SimpleStepContext<OrderedVersion> context = new IStepContext.SimpleStepContext<>(null, versionGraph, versionGraph.getMinecraftVersionByName("1.20"), executor);
 			assertEquals(StepStatus.SUCCESS, MappingFlavour.FABRIC_INTERMEDIARY.provide(context, MinecraftJar.MERGED));
 			assertTrue(Files.exists(mappingsPath));
@@ -184,6 +188,35 @@ public class GitCraftTest {
 			assertFalse(MappingFlavour.FABRIC_INTERMEDIARY.supportsConstantUnpicking());
 			assertEquals(MappingsNamespace.OFFICIAL.toString(), MappingFlavour.FABRIC_INTERMEDIARY.getSourceNS());
 			assertEquals(MappingsNamespace.INTERMEDIARY.toString(), MappingFlavour.FABRIC_INTERMEDIARY.getDestinationNS());
+			{
+				Path mappingsPathTest = MappingFlavour.FABRIC_INTERMEDIARY.getPath(versionGraph.getMinecraftVersionByName("26.1"), MinecraftJar.MERGED).orElse(null);
+				assertNotNull(mappingsPathTest);
+				IStepContext.SimpleStepContext<OrderedVersion> context1 = new IStepContext.SimpleStepContext<>(null, versionGraph, versionGraph.getMinecraftVersionByName("26.1"), executor);
+				assertEquals(StepStatus.SUCCESS, MappingFlavour.FABRIC_INTERMEDIARY.provide(context1, MinecraftJar.MERGED));
+				assertTrue(Files.size(mappingsPathTest) > 0);
+				assertEquals(StepStatus.UP_TO_DATE, MappingFlavour.FABRIC_INTERMEDIARY.provide(context1, MinecraftJar.MERGED));
+				assertNotNull(MappingFlavour.FABRIC_INTERMEDIARY.getProvider(versionGraph.getMinecraftVersionByName("26.1"), MinecraftJar.MERGED));
+			}
+			{
+				// the first local intermediary checkout containing the version is used
+				Path emptyRepo = LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve("local-intermediary-empty");
+				Path localRepo = LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve("local-intermediary");
+				Files.createDirectories(emptyRepo.resolve("mappings"));
+				Files.createDirectories(localRepo.resolve("mappings"));
+				Files.writeString(localRepo.resolve("mappings").resolve("26.1.1.tiny"), "v1\tofficial\tintermediary\nCLASS\tcom/mojang/math/Axis\tnet/minecraft/class_7833\n");
+				Configuration.editConfiguration(TransientApplicationConfiguration.class, original -> transientConfigWithIntermediaryRepo(original, new Path[]{emptyRepo, localRepo}));
+				try {
+					OrderedVersion localVersion = versionGraph.getMinecraftVersionByName("26.1.1");
+					assertTrue(MappingFlavour.FABRIC_INTERMEDIARY.exists(localVersion));
+					Path mappingsPathTest = MappingFlavour.FABRIC_INTERMEDIARY.getPath(localVersion, MinecraftJar.MERGED).orElse(null);
+					assertNotNull(mappingsPathTest);
+					IStepContext.SimpleStepContext<OrderedVersion> context1 = new IStepContext.SimpleStepContext<>(null, versionGraph, localVersion, executor);
+					assertEquals(StepStatus.SUCCESS, MappingFlavour.FABRIC_INTERMEDIARY.provide(context1, MinecraftJar.MERGED));
+					assertTrue(Files.size(mappingsPathTest) > 0);
+				} finally {
+					Configuration.editConfiguration(TransientApplicationConfiguration.class, original -> transientConfigWithIntermediaryRepo(original, null));
+				}
+			}
 		}
 	}
 
@@ -201,6 +234,9 @@ public class GitCraftTest {
 			assertFalse(Files.exists(mappingsPath));
 			assertTrue(MappingFlavour.YARN.exists(versionGraph.getMinecraftVersionBySemanticVersion("1.14-alpha.18.49.a")));
 			assertFalse(MappingFlavour.YARN.exists(versionGraph.getMinecraftVersionBySemanticVersion("1.14-alpha.18.48.b")));
+			// Non-obfuscated versions, mapped by modern yarn
+			assertTrue(MappingFlavour.YARN.exists(versionGraph.getMinecraftVersionByName("26.1")));
+			assertFalse(MappingFlavour.YARN.exists(versionGraph.getMinecraftVersionByName("25w45a_unobfuscated")));
 			IStepContext.SimpleStepContext<OrderedVersion> context = new IStepContext.SimpleStepContext<>(null, versionGraph, versionGraph.getMinecraftVersionByName("1.20"), executor);
 			assertEquals(StepStatus.SUCCESS, MappingFlavour.YARN.provide(context, MinecraftJar.MERGED));
 			assertTrue(Files.exists(mappingsPath));
@@ -212,6 +248,15 @@ public class GitCraftTest {
 			assertFalse(MappingFlavour.YARN.exists(versionGraph.getMinecraftVersionBySemanticVersion("1.14-alpha.19.14.a")));
 			assertFalse(MappingFlavour.YARN.exists(versionGraph.getMinecraftVersionBySemanticVersion("1.14-alpha.19.14.b")));
 			//
+			{
+				Path mappingsPathTest = MappingFlavour.YARN.getPath(versionGraph.getMinecraftVersionByName("26.1"), MinecraftJar.MERGED).orElse(null);
+				assertNotNull(mappingsPathTest);
+				IStepContext.SimpleStepContext<OrderedVersion> context1 = new IStepContext.SimpleStepContext<>(null, versionGraph, versionGraph.getMinecraftVersionByName("26.1"), executor);
+				assertEquals(StepStatus.SUCCESS, MappingFlavour.YARN.provide(context1, MinecraftJar.MERGED));
+				assertTrue(Files.size(mappingsPathTest) > 0);
+				assertEquals(StepStatus.UP_TO_DATE, MappingFlavour.YARN.provide(context1, MinecraftJar.MERGED));
+				assertNotNull(MappingFlavour.YARN.getProvider(versionGraph.getMinecraftVersionByName("26.1"), MinecraftJar.MERGED));
+			}
 			{
 				Path mappingsPathTest = MappingFlavour.YARN.getPath(versionGraph.getMinecraftVersionByName("1.14.2"), MinecraftJar.MERGED).orElse(null);
 				assertNotNull(mappingsPathTest);
@@ -1013,6 +1058,20 @@ public class GitCraftTest {
 			original.usedSignatures(),
 			original.usedNests(),
 			original.enablePreening()
+		);
+	}
+
+	private static TransientApplicationConfiguration transientConfigWithIntermediaryRepo(TransientApplicationConfiguration original, Path[] repoPaths) {
+		return new TransientApplicationConfiguration(
+			original.noRepo(),
+			original.overrideRepositoryPath(),
+			original.additionalFilesPath(),
+			original.refreshDecompilation(),
+			original.refreshOnlyVersion(),
+			original.refreshMinVersion(),
+			original.refreshMaxVersion(),
+			repoPaths,
+			original.artifactStorePath()
 		);
 	}
 }

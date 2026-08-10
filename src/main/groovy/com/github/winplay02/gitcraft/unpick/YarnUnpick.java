@@ -95,8 +95,11 @@ public class YarnUnpick implements Unpick {
 
 	@Override
 	public boolean doesUnpickInformationExist(OrderedVersion mcVersion)  {
-		if (YarnMappings.isYarnBrokenVersion(mcVersion) || mcVersion.isNotObfuscated()) { // exclude broken and non-obfuscated versions
+		if (YarnMappings.isYarnBrokenVersion(mcVersion)) { // exclude broken versions
 			return false;
+		}
+		if (mcVersion.isNotObfuscated()) { // modern yarn ships unpick information in the same jar
+			return YarnMappings.getTargetYarnBuild(mcVersion) != null;
 		}
 		return mcVersion.compareTo(GitCraft.getApplicationConfiguration().manifestSource().getMetadataProvider().getVersionByVersionID(GitCraftQuirks.YARN_UNPICK_START_VERSION_ID)) >= 0;
 	}

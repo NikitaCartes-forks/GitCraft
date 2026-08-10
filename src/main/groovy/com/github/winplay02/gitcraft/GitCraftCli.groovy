@@ -79,8 +79,8 @@ class GitCraftCli {
 			'Additional files path. If present files from that directory will be put in resulting repo.')
 		cli_args._(longOpt: 'manifest-source', "Specifies the manifest source used to fetch the available versions, the mapping to semantic versions and the dependencies between versions. The Minecraft Launcher Meta (from Mojang) is selected by default. Possible values are: ${Arrays.stream(ManifestSource.values()).map(Object::toString).collect(Collectors.joining(", "))}", type: ManifestSource, argName: "manifestsrc", defaultValue: "mojang");
 		cli_args._(longOpt: 'repo-gc', 'Perform a garbage collection pass on the repository after the run. This will probably speed up any subsequent operation on the repo (e.g. viewing diffs).')
-		cli_args._(longOpt: 'fabric-intermediary-repo', args: 1, argName: 'path', type: Path,
-			'Path to a local FabricMC/intermediary git checkout. If provided, intermediary mappings will be read from this directory instead of the GitHub API.')
+		cli_args._(longOpt: 'fabric-intermediary-repo', args: -2 /*CliBuilder.COMMONS_CLI_UNLIMITED_VALUES*/, valueSeparator: ',', argName: 'path', type: Path[],
+			'Paths to local FabricMC/intermediary or RelativityMC/intermediary git checkouts (in given order). If provided, intermediary mappings will be read from the first checkout that contains the version, instead of the GitHub API. Non-obfuscated versions which no checkout contains are still read from maven.')
 		cli_args.h(longOpt: 'help', 'Displays this help screen');
 		return cli_args;
 	}
@@ -250,10 +250,10 @@ class GitCraftCli {
 			Path storePath = cli_args_parsed.'artifact-store-path';
 			artifactStorePath = storePath.toAbsolutePath().normalize();
 		}
-		Path fabricIntermediaryRepoPath = null;
+		Path[] fabricIntermediaryRepoPaths = null;
 		if (cli_args_parsed.hasOption("fabric-intermediary-repo")) {
-			Path repoPath = cli_args_parsed.'fabric-intermediary-repo';
-			fabricIntermediaryRepoPath = repoPath.toAbsolutePath();
+			Path[] repoPaths = cli_args_parsed.'fabric-intermediary-repo';
+			fabricIntermediaryRepoPaths = repoPaths.collect { it.toAbsolutePath() } as Path[];
 		}
 		boolean refreshDecompilation = cli_args_parsed.hasOption("refresh");
 		String[] refreshOnlyVersion = null;
@@ -279,7 +279,7 @@ class GitCraftCli {
 			refreshOnlyVersion,
 			refreshMinVersion,
 			refreshMaxVersion,
-			fabricIntermediaryRepoPath,
+			fabricIntermediaryRepoPaths,
 			artifactStorePath != null ? artifactStorePath : original.artifactStorePath()
 		));
 		return true;

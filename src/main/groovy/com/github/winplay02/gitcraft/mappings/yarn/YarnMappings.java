@@ -98,8 +98,11 @@ public class YarnMappings extends Mapping {
 
 	@Override
 	public boolean doMappingsExist(OrderedVersion mcVersion) {
-		if (isYarnBrokenVersion(mcVersion) || mcVersion.isNotObfuscated()) { // exclude broken and non-obfuscated versions
+		if (isYarnBrokenVersion(mcVersion)) { // exclude broken versions
 			return false;
+		}
+		if (mcVersion.isNotObfuscated()) { // fabric does not map non-obfuscated versions, modern yarn continues them
+			return ModernYarn.getLatestBuild(mcVersion) != null;
 		}
 		return mcVersion.compareTo(GitCraft.getApplicationConfiguration().manifestSource().getMetadataProvider().getVersionByVersionID(GitCraftQuirks.YARN_MAPPINGS_START_VERSION_ID)) >= 0;
 	}
@@ -122,7 +125,14 @@ public class YarnMappings extends Mapping {
 
 	public static StepStatus fetchYarnMergedV2Jar(IStepContext<?, OrderedVersion> versionContext, GameVersionBuildMeta yarnVersion) {
 		Path mappingsFileJar = getYarnMergedV2JarPath(versionContext.targetVersion(), yarnVersion);
-		return RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryMaven(versionContext.executorService(), yarnVersion.makeMergedV2JarMavenUrl(GitCraft.FABRIC_MAVEN), new FileSystemNetworkManager.LocalFileInfo(mappingsFileJar, null, null, "yarn mapping", versionContext.targetVersion().launcherFriendlyVersionName()));
+		return RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryMaven(versionContext.executorService(), yarnVersion.makeMergedV2JarMavenUrl(getYarnMaven(versionContext.targetVersion())), new FileSystemNetworkManager.LocalFileInfo(mappingsFileJar, null, null, "yarn mapping", versionContext.targetVersion().launcherFriendlyVersionName()));
+	}
+
+	/**
+	 * @return the maven that publishes yarn for the given version
+	 */
+	private static String getYarnMaven(OrderedVersion mcVersion) {
+		return mcVersion.isNotObfuscated() ? GitCraft.RELATIVITYMC_MAVEN : GitCraft.FABRIC_MAVEN;
 	}
 
 	@Override
@@ -192,6 +202,9 @@ public class YarnMappings extends Mapping {
 		if (isYarnBrokenVersion(mcVersion)) { // exclude broken versions
 			return null;
 		}
+		if (mcVersion.isNotObfuscated()) { // modern yarn has no meta service, its builds are read from maven
+			return ModernYarn.getLatestBuild(mcVersion);
+		}
 		GameVersionBuildMeta yarnVersion = getYarnLatestBuild(mcVersion);
 		if (yarnVersion == null) {
 			MiscHelper.println("Tried to use yarn for version %s. Yarn mappings do not exist for this version in meta.fabricmc.net. Falling back to generated version...", mcVersion.launcherFriendlyVersionName());
@@ -240,7 +253,7 @@ public class YarnMappings extends Mapping {
 				return Tuple2.tuple(mappingsFileUnmerged, StepStatus.UP_TO_DATE);
 			}
 			Path mappingsFileUnmergedJar = GitCraftPipelineFilesystemRoot.getMappings().apply(GitCraftPipelineFilesystemStorage.DEFAULT.get().rootFilesystem()).resolve(String.format("%s-yarn-unmerged-build.%s.jar", versionContext.targetVersion().launcherFriendlyVersionName(), yarnVersion.build()));
-			StepStatus result = RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryMaven(versionContext.executorService(), yarnVersion.makeV2JarMavenUrl(GitCraft.FABRIC_MAVEN), new FileSystemNetworkManager.LocalFileInfo(mappingsFileUnmergedJar, null, null, "unmerged yarn mapping", versionContext.targetVersion().launcherFriendlyVersionName()));
+			StepStatus result = RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryMaven(versionContext.executorService(), yarnVersion.makeV2JarMavenUrl(getYarnMaven(versionContext.targetVersion())), new FileSystemNetworkManager.LocalFileInfo(mappingsFileUnmergedJar, null, null, "unmerged yarn mapping", versionContext.targetVersion().launcherFriendlyVersionName()));
 			try (FileSystem fs = FileSystems.newFileSystem(mappingsFileUnmergedJar)) {
 				Path mappingsPathInJar = fs.getPath("mappings", "mappings.tiny");
 				Files.copy(mappingsPathInJar, mappingsFileUnmerged, StandardCopyOption.REPLACE_EXISTING);
@@ -254,7 +267,7 @@ public class YarnMappings extends Mapping {
 					return Tuple2.tuple(mappingsFileUnmergedv1, StepStatus.UP_TO_DATE);
 				}
 				Path mappingsFileUnmergedJarv1 = GitCraftPipelineFilesystemRoot.getMappings().apply(GitCraftPipelineFilesystemStorage.DEFAULT.get().rootFilesystem()).resolve(String.format("%s-yarn-unmerged-build.%s-v1.jar", versionContext.targetVersion().launcherFriendlyVersionName(), yarnVersion.build()));
-				StepStatus result = RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryMaven(versionContext.executorService(), yarnVersion.makeJarMavenUrl(GitCraft.FABRIC_MAVEN), new FileSystemNetworkManager.LocalFileInfo(mappingsFileUnmergedJarv1, null, null, "unmerged yarn mapping (v1 fallback)", versionContext.targetVersion().launcherFriendlyVersionName()));
+				StepStatus result = RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryMaven(versionContext.executorService(), yarnVersion.makeJarMavenUrl(getYarnMaven(versionContext.targetVersion())), new FileSystemNetworkManager.LocalFileInfo(mappingsFileUnmergedJarv1, null, null, "unmerged yarn mapping (v1 fallback)", versionContext.targetVersion().launcherFriendlyVersionName()));
 				try (FileSystem fs = FileSystems.newFileSystem(mappingsFileUnmergedJarv1)) {
 					Path mappingsPathInJar = fs.getPath("mappings", "mappings.tiny");
 					Files.copy(mappingsPathInJar, mappingsFileUnmergedv1, StandardCopyOption.REPLACE_EXISTING);
