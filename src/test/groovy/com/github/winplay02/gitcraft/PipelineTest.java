@@ -24,13 +24,16 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @ExtendWith({GitCraftTestingFs.class})
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -58,6 +61,10 @@ public class PipelineTest {
 
 		public boolean isOverlapping(TestingVersion v1, TestingVersion v2) {
 			return (timesBegin.get(v1) < timesEnd.get(v2) && timesBegin.get(v1) > timesBegin.get(v2)) || (timesEnd.get(v1) > timesBegin.get(v2) && timesBegin.get(v1) < timesBegin.get(v2));
+		}
+
+		public Set<TestingVersion> versionsRun() {
+			return Set.copyOf(timesBegin.keySet());
 		}
 	}
 
@@ -223,6 +230,30 @@ public class PipelineTest {
 		testingVersion -> new EmptyConfig(SEQ_TIMING[0], SEQ_TIMING[1], SEQ_TIMING[2])
 	);
 
+	static Timing[] SKIP_TIMING = new Timing[3];
+
+	static Predicate<TestingVersion> SKIP_PREDICATE = $ -> false;
+
+	static PipelineDescription<TestingVersion, IStepContext.SimpleStepContext<TestingVersion>, EmptyConfig> SKIP_DESCRIPTION = new PipelineDescription<TestingVersion, IStepContext.SimpleStepContext<TestingVersion>, EmptyConfig>(
+		"skip-pipeline",
+		List.of(TestingStepsParallel.STEP1, TestingStepsParallel.STEP2, TestingStepsParallel.STEP3),
+		Map.of(
+			TestingStepsParallel.STEP1, ($, $$) -> new StepInput.Empty(),
+			TestingStepsParallel.STEP2, ($, $$) -> new StepInput.Empty(),
+			TestingStepsParallel.STEP3, ($, $$) -> new StepInput.Empty()
+		),
+		Map.of(
+			TestingStepsParallel.STEP2, StepDependencies.ofHardIntraVersionOnly(TestingStepsParallel.STEP1),
+			TestingStepsParallel.STEP3, StepDependencies.merge(
+				StepDependencies.ofHardIntraVersionOnly(TestingStepsParallel.STEP1),
+				StepDependencies.ofInterVersion(TestingStepsParallel.STEP3)
+			)
+		),
+		($, versionCtx) -> SKIP_PREDICATE.test(versionCtx.targetVersion()),
+		(version, repository, versionGraph, executorService) -> new IStepContext.SimpleStepContext<TestingVersion>(repository, versionGraph, version, executorService),
+		testingVersion -> new EmptyConfig(SKIP_TIMING[0], SKIP_TIMING[1], SKIP_TIMING[2])
+	);
+
 	static TestingVersionGraph createVersionGraph() {
 		return new TestingVersionGraph(
 			List.of(
@@ -267,5 +298,31 @@ public class PipelineTest {
 		Assertions.assertFalse(SEQ_TIMING[2].isOverlapping(new TestingVersion(3), new TestingVersion(4)));
 		Assertions.assertFalse(SEQ_TIMING[2].isOverlapping(new TestingVersion(2), new TestingVersion(3)));
 		Assertions.assertFalse(SEQ_TIMING[2].isOverlapping(new TestingVersion(1), new TestingVersion(2)));
+	}
+
+	/**
+	 * When every version is skipped, no task is ever scheduled, so nothing signals completion.
+	 */
+	@Test
+	public void pipelineExecutionSkipAll() {
+		SKIP_TIMING = new Timing[]{new Timing(), new Timing(), new Timing()};
+		SKIP_PREDICATE = $ -> true;
+		TestingVersionGraph graph = createVersionGraph();
+		Assertions.assertTimeoutPreemptively(Duration.ofSeconds(10), () -> IPipeline.run(SKIP_DESCRIPTION, new PipelineFilesystemStorage<>(null, null), null, graph));
+		Assertions.assertEquals(Set.of(), SKIP_TIMING[0].versionsRun());
+		Assertions.assertEquals(Set.of(), SKIP_TIMING[2].versionsRun());
+	}
+
+	/**
+	 * Version 4 depends on version 2, which is skipped; the dependency counters must still release version 4.
+	 */
+	@Test
+	public void pipelineExecutionSkipSome() {
+		SKIP_TIMING = new Timing[]{new Timing(), new Timing(), new Timing()};
+		SKIP_PREDICATE = version -> version.num() != 4;
+		TestingVersionGraph graph = createVersionGraph();
+		Assertions.assertTimeoutPreemptively(Duration.ofSeconds(30), () -> IPipeline.run(SKIP_DESCRIPTION, new PipelineFilesystemStorage<>(null, null), null, graph));
+		Assertions.assertEquals(Set.of(new TestingVersion(4)), SKIP_TIMING[0].versionsRun());
+		Assertions.assertEquals(Set.of(new TestingVersion(4)), SKIP_TIMING[2].versionsRun());
 	}
 }

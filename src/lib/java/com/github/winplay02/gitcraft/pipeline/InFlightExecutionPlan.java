@@ -17,18 +17,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public record InFlightExecutionPlan<T extends AbstractVersion<T>, C extends IStepContext<C, T>, D extends IStepConfig>(
-	PipelineExecutionGraph<T, C, D> executionGraph,
-	Set<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>> completedSubset,
-	Set<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>> executingSubset,
-	Set<IStep<T, ?, C, D>> activeSteps,
-	Map<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>, Exception> failedTasks,
-	Map<T, C> versionedContexts,
-	Map<T, D> versionedConfigs,
-	Map<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>, Set<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>>> dependents,
-	Map<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>, AtomicInteger> remainingDeps,
-	Set<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>> deferredTasks,
-	Object executionLock,
-	Object conditionalVar) {
+																			PipelineExecutionGraph<T, C, D> executionGraph,
+																			Set<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>> completedSubset,
+																			Set<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>> executingSubset,
+																			Set<IStep<T, ?, C, D>> activeSteps,
+																			Map<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>, Exception> failedTasks,
+																			Map<T, C> versionedContexts,
+																			Map<T, D> versionedConfigs,
+																			Map<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>, Set<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>>> dependents,
+																			Map<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>, AtomicInteger> remainingDeps,
+																			Set<CachedHashKeyWrapper<IPipeline.TupleVersionStep<T, C, D>>> deferredTasks,
+																			Object executionLock,
+																			Object conditionalVar) {
 
 	public static <T extends AbstractVersion<T>, C extends IStepContext<C, T>, D extends IStepConfig> InFlightExecutionPlan<T, C, D> create(PipelineDescription<T, C, D> description, AbstractVersionGraph<T> versionGraph) {
 		PipelineExecutionGraph<T, C, D> executionGraph = PipelineExecutionGraph.populate(description, versionGraph);
