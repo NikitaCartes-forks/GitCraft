@@ -16,10 +16,49 @@ import com.github.winplay02.gitcraft.util.MiscHelper
 import groovy.cli.picocli.CliBuilder
 import groovy.cli.picocli.OptionAccessor
 
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
 
 class GitCraftCli {
+	private static final String PRESET_OPTION = '--preset'
+
+	// Expands any '--preset[=]<path>' entry into the arguments read from that file (one argument per line;
+	// blank lines and lines starting with '#' are ignored), before any other argument handling happens.
+	static String[] expandPresets(String[] args) {
+		List<String> expanded = new ArrayList<>()
+		int i = 0
+		while (i < args.length) {
+			String arg = args[i]
+			String presetPath = null
+			if (arg == PRESET_OPTION) {
+				if (i + 1 >= args.length) {
+					MiscHelper.panic("Missing file path after '%s'", PRESET_OPTION)
+				}
+				presetPath = args[i + 1]
+				i += 2
+			} else if (arg.startsWith(PRESET_OPTION + '=')) {
+				presetPath = arg.substring((PRESET_OPTION + '=').length())
+				i += 1
+			} else {
+				expanded.add(arg)
+				i += 1
+				continue
+			}
+			expanded.addAll(readPresetArgs(Path.of(presetPath)))
+		}
+		return expanded as String[]
+	}
+
+	private static List<String> readPresetArgs(Path path) {
+		if (!Files.isReadable(path)) {
+			MiscHelper.panic("Preset file '%s' does not exist or is not readable", path)
+		}
+		return Files.readAllLines(path)
+			.collect { it.trim() }
+			.findAll { !it.isEmpty() && !it.startsWith('#') }
+	}
+
 	static CliBuilder createCli() {
 		CliBuilder cli_args = new CliBuilder();
 		cli_args.setUsage("gradlew run --args=\"[Options]\"");
@@ -81,6 +120,8 @@ class GitCraftCli {
 		cli_args._(longOpt: 'repo-gc', 'Perform a garbage collection pass on the repository after the run. This will probably speed up any subsequent operation on the repo (e.g. viewing diffs).')
 		cli_args._(longOpt: 'fabric-intermediary-repo', args: -2 /*CliBuilder.COMMONS_CLI_UNLIMITED_VALUES*/, valueSeparator: ',', argName: 'path', type: Path[],
 			'Paths to local FabricMC/intermediary or RelativityMC/intermediary git checkouts (in given order). If provided, intermediary mappings will be read from the first checkout that contains the version, instead of the GitHub API. Non-obfuscated versions which no checkout contains are still read from maven.')
+		cli_args._(longOpt: 'preset', args: 1, argName: 'path', type: Path,
+			'Reads arguments from the given file and inserts them at this point, one argument per line (blank lines and lines starting with "#" are ignored). Allows a full set of options to be reused as a preset instead of specifying them on the command line every time.');
 		cli_args.h(longOpt: 'help', 'Displays this help screen');
 		return cli_args;
 	}

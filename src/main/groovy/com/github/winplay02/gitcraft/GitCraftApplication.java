@@ -46,6 +46,7 @@ public abstract class GitCraftApplication {
 	public abstract void run() throws Exception;
 
 	public final void mainEntrypoint(String[] args) throws Exception {
+		args = GitCraftCli.expandPresets(args);
 		Library.initialize(TransientApplicationConfiguration.findArtifactStorePathOverride(args));
 		if (!this.initialize(args)) {
 			return;

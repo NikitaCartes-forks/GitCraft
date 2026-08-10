@@ -27,6 +27,8 @@ Generates a Git repository of decompiled Minecraft. For personal use only. Do no
 
 To get started, execute `./gradlew run` from the command line, advanced usage (`./gradlew run --args="[Options]"`) is shown below.
 
+To avoid retyping the same set of options, save them in a text file (one argument per line, lines starting with `#` are ignored) and load it with `--preset=<path>`.
+
 By default, integrated assets (e.g. models), external assets (e.g. other languages) and the integrated datapacks are included in the generated repository.
 This can be changed by adding the `--no-assets`, `--no-external-assets` and `--no-datapack` parameters.
 
@@ -200,6 +202,12 @@ Options:
                                jars for versions where they were stripped
                                during obfuscation.
       --preening-enabled     Undo merging of specialized and bridge methods.
+      --preset=<path>        Reads arguments from the given file and inserts
+                               them at this point, one argument per line
+                               (blank lines and lines starting with "#" are
+                               ignored). Allows a full set of options to be
+                               reused as a preset instead of specifying them
+                               on the command line every time.
       --refresh              Refreshes the decompilation by deleting old
                                decompiled artifacts and restarting. This may be
                                useful, if the decompiler has been updated or
