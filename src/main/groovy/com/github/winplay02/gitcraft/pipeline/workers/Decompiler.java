@@ -27,6 +27,7 @@ import com.github.winplay02.gitcraft.pipeline.GitCraftStepWorker;
 import com.github.winplay02.gitcraft.pipeline.key.StorageKey;
 import com.github.winplay02.gitcraft.types.OrderedVersion;
 import com.github.winplay02.gitcraft.util.SerializationHelper;
+import net.fabricmc.loom.api.decompilers.JavadocStyle;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -98,7 +99,9 @@ public record Decompiler(GitCraftStepConfig config) implements GitCraftStepWorke
 			// TODO: this will break for mapping flavours that support unpicking but for the client and server separately
 			options.put(IFabricJavadocProvider.PROPERTY_NAME,
 				new TinyJavadocProvider(
-					config.mappingFlavour().getPath(context.targetVersion(), inFile).orElseThrow().toFile()
+					config.mappingFlavour().getPath(context.targetVersion(), inFile).orElseThrow().toFile(),
+					config.mappingFlavour().getDestinationNS(),
+					JavadocStyle.HTML
 				)
 			);
 		}
