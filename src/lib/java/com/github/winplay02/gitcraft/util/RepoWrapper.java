@@ -267,7 +267,8 @@ public class RepoWrapper implements Closeable {
 	public void gc() throws GitAPIException {
 		this.git.getRepository().getObjectDatabase().close();
 		try {
-			Process process = new ProcessBuilder("git", "gc")
+			// core.longpaths is needed on windows, as repository paths regularly exceed MAX_PATH
+			Process process = new ProcessBuilder("git", "-c", "core.longpaths=true", "gc")
 				.directory(this.root_path.toFile())
 				.redirectErrorStream(true)
 				.start();
