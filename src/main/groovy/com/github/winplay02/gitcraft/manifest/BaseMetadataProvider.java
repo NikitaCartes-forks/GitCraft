@@ -69,7 +69,7 @@ public abstract class BaseMetadataProvider<M extends VersionsManifest<E>, E exte
 	}
 
 	protected final Path getSemverCachePath() {
-		return LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", this.getInternalName()));
+		return LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", this.getInternalName()));
 	}
 
 	protected final void loadSemverCache() {

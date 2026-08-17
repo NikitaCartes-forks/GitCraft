@@ -63,7 +63,7 @@ public class GitCraftTest {
 	@Test
 	public void versionGraphFilter() throws IOException {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph versionGraphComplete;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -106,7 +106,7 @@ public class GitCraftTest {
 	@Test
 	public void mappingsMojang() throws IOException, URISyntaxException, InterruptedException {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -139,7 +139,7 @@ public class GitCraftTest {
 	@Test
 	public void mappingsParchment() throws IOException, URISyntaxException, InterruptedException {
 		MojangLauncherMetadataProvider metadataBootstrap1 = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -165,7 +165,7 @@ public class GitCraftTest {
 	@Test
 	public void mappingsFabricIntermediary() throws IOException, URISyntaxException, InterruptedException {
 		MojangLauncherMetadataProvider metadataBootstrap1 = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -223,7 +223,7 @@ public class GitCraftTest {
 	@Test
 	public void mappingsYarn() throws IOException, URISyntaxException, InterruptedException {
 		MojangLauncherMetadataProvider metadataBootstrap1 = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap1.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -363,7 +363,7 @@ public class GitCraftTest {
 	@Test
 	public void pipeline() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -412,7 +412,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineOldAlpha() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -459,7 +459,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineOldSnapshotSkyrising() throws Exception {
 		SkyrisingMetadataProvider metadataBootstrap = new SkyrisingMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.SKYRISING));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -510,7 +510,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineOldSnapshotSkyrisingOrnithe() throws Exception {
 		SkyrisingMetadataProvider metadataBootstrap = new SkyrisingMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.SKYRISING));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -605,7 +605,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineNoAssets() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -630,7 +630,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineExternalAssets() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -652,7 +652,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineDatapack() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -677,7 +677,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineDatapackReset() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -702,7 +702,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineMinMaxExclude() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -742,7 +742,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineNoDatagenSnbt() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -770,7 +770,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineNoDatagenRegistryReports() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -798,7 +798,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineUnpickRemapMojmapYarn() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -815,7 +815,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineUnpickRemapYarnYarn() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -832,7 +832,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineUnpickv3RemapMojmapYarn() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -849,7 +849,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineUnpickv3RemapYarnYarn() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -866,7 +866,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineMojangPlusYarnMappings() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -883,7 +883,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineRaceconditionRepoAccess() throws Exception {
 		MojangLauncherMetadataProvider metadataBootstrap = new MojangLauncherMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.MOJANG));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
@@ -903,7 +903,7 @@ public class GitCraftTest {
 	@Test
 	public void pipelineSideBranchMissingSides() throws Exception {
 		SkyrisingMetadataProvider metadataBootstrap = new SkyrisingMetadataProvider();
-		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(LibraryPaths.lookupCurrentWorkingDirectory().resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), LibraryPaths.MAIN_ARTIFACT_STORE.resolve(String.format("semver-cache-%s.json", metadataBootstrap.getInternalName())), StandardCopyOption.REPLACE_EXISTING);
 		Configuration.editConfiguration(ApplicationConfiguration.class, original -> appConfigWithManifestSource(original, ManifestSource.SKYRISING));
 		MinecraftVersionGraph _versionGraph;
 		try (ExecutorService executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("Testing-Executor").factory())) {
